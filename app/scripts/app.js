@@ -7,13 +7,13 @@ var Editor = require("./ui/Editor");
 var mountNode = document.getElementById("app");
 
 var App = React.createClass({
-  render: function() {
+  render: function () {
     return (
-        <Editor />
+      <Editor />
     );
   }
 });
 
 
-React.renderComponent(<App />, mountNode);
+React.render(<App />, mountNode);
 
