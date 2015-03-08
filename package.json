@@ -5,8 +5,11 @@
   "dependencies": {
     "ebnf-parser": "^0.1.10",
     "flux": "^2.0.1",
+    "flux-dispatcher": "^1.0.6",
     "jison": "nolanlawson/jison#debuggable",
-    "lex-parser": "^0.1.4"
+    "keymirror": "^0.1.1",
+    "lex-parser": "^0.1.4",
+    "object-assign": "^2.0.0"
   },
   "devDependencies": {
     "del": "~0.1.3",

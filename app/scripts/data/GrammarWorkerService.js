@@ -1,18 +1,19 @@
 'use strict';
 
-var worker = new Worker('../assets/js/worker.js');
-var GrammarActionCreator = require('../actions/GrammarActionCreator');
+var worker = new Worker('/worker/grammar-worker.js');
+var CompiledGrammarActionCreator = require('../actions/CompiledGrammarActionCreator');
 
-module.exports = {
+var GrammarWorkerService =  {
   compileGrammar: function (grammar) {
     worker.addEventListener('error', function (e) {
-      GrammarActionCreator.grammarErrored(e);
+      CompiledGrammarActionCreator.grammarErrored(e);
     });
     worker.addEventListener('message', function (e) {
-      var compiled = e.data.result;
-      GrammarActionCreator.grammarCompiled(compiled);
+      CompiledGrammarActionCreator.grammarCompiled(e.data.result.compiledGrammar);
     });
     // ask the web worker to parse the grammar for us
     worker.postMessage(grammar);
   }
 };
+
+module.exports = GrammarWorkerService;

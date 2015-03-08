@@ -2,6 +2,7 @@
 
 var AppDispatcher = require('../dispatcher');
 var ActionTypes = require('./ActionTypes');
+var GrammarWorkerService = require('../data/GrammarWorkerService');
 
 module.exports = {
   compileGrammar(grammar) {
@@ -9,17 +10,6 @@ module.exports = {
       type: ActionTypes.COMPILE_GRAMMAR,
       grammar: grammar
     });
-  },
-  grammarErrored: function (error) {
-    AppDispatcher.handleWorkerAction({
-      type: ActionTypes.GRAMMAR_ERRORED,
-      error: error
-    });
-  },
-  grammarCompiled: function (compiled) {
-    AppDispatcher.handleWorkerAction({
-      type: ActionTypes.GRAMMAR_COMPILED,
-      compiledGrammar: compiled
-    });
+    GrammarWorkerService.compileGrammar(grammar);
   }
 };

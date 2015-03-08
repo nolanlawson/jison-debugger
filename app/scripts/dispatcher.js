@@ -1,10 +1,10 @@
 'use strict';
 
-var Dispatcher = require('flux/dispatcher');
+var dispatcher = require('flux-dispatcher');
 var PayloadSources = require('./payload-sources');
-var assign = require('react/lib/assign');
+var assign = require('object-assign');
 
-var AppDispatcher = assign(new Dispatcher(), {
+var AppDispatcher = assign(dispatcher, {
 
   handleViewAction(action) {
     var payload = {
@@ -13,7 +13,7 @@ var AppDispatcher = assign(new Dispatcher(), {
     };
     this.dispatch(payload);
   },
-  
+
   handleWorkerAction(action) {
     var payload = {
       source: PayloadSources.WORKER_ACTION,

@@ -12,9 +12,9 @@ var $ = require('gulp-load-plugins')();
 var browserify = require('browserify');
 var watchify = require('watchify');
 var source = require('vinyl-source-stream'),
-    
+
     sourceFile = './app/scripts/app.js',
-    
+
     destFolder = './dist/scripts',
     destFileName = 'app.js';
 
@@ -109,7 +109,7 @@ gulp.task('clean', function (cb) {
 
 
 // Bundle
-gulp.task('bundle', ['styles', 'scripts', 'bower'], function(){
+gulp.task('bundle', ['styles', 'scripts', 'bower', 'node_modules', 'worker'], function(){
     return gulp.src('./app/*.html')
                .pipe($.useref.assets())
                .pipe($.useref.restore())
@@ -133,6 +133,16 @@ gulp.task('bower', function() {
 
 });
 
+gulp.task('node_modules', function() {
+  gulp.src('node_modules/{jison,ebnf-parser}/**/*.js', {base: 'node_modules'})
+    .pipe(gulp.dest('dist/node_modules/'));
+});
+
+gulp.task('worker', function() {
+  gulp.src('app/scripts/worker/**/*.js', {base: 'app/scripts/worker'})
+    .pipe(gulp.dest('dist/worker'));
+});
+
 gulp.task('json', function() {
     gulp.src('app/scripts/json/**/*.json', {base: 'app/scripts'})
         .pipe(gulp.dest('dist/scripts/'));
@@ -154,10 +164,10 @@ gulp.task('watch', ['html', 'bundle', 'serve'], function () {
     // Watch .html files
     gulp.watch('app/*.html', ['html']);
 
-    
+
     // Watch .scss files
     gulp.watch('app/styles/**/*.scss', ['styles']);
-    
+
 
 
     // Watch .jade files
