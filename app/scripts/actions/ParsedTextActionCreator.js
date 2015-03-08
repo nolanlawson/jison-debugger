@@ -7,7 +7,8 @@ module.exports = {
   textParsed: function (data) {
     AppDispatcher.handleWorkerAction({
       type: ActionTypes.TEXT_PARSED,
-      parsedResult: data.parsedResult
+      parsedResult: data.parsedResult,
+      lexDebugger: data.lexDebugger
     });
   },
   textErrored: function (error) {

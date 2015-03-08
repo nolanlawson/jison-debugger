@@ -8,6 +8,7 @@ var ParsedTextView = React.createClass({
   getInitialState: function () {
     var state = {
       parsedResult: GrammarStore.getActiveParsedResult(),
+      lexDebugger: GrammarStore.getActiveLexDebugger(),
       parsedError: GrammarStore.getActiveCompiledError()
     };
     return state;
@@ -18,29 +19,34 @@ var ParsedTextView = React.createClass({
   _onChange: function () {
     var state = {
       parsedResult: GrammarStore.getActiveParsedResult(),
+      lexDebugger: GrammarStore.getActiveLexDebugger(),
       parsedError: GrammarStore.getActiveCompiledError()
     };
     this.setState(state);
   },
   render: function () {
-    var style = {
-      width: 400,
-      height: 222,
-      fontFamily: 'monospace'
-    };
+    var baseStyle = { width: 400, height: 222, fontFamily: 'monospace'};
+    var style1 =  { width: 400, height: 122, fontFamily: 'monospace'}
+    var style2 = {width: 400, height: 100, fontFamily: 'monospace'};
 
-    var display;
     if (this.state.parsedError) {
-      display = this.state.parsedError.message;
+      return (
+        <div>
+          <pre style={baseStyle}>{this.state.parsedError}</pre>
+        </div>
+      );
     } else if (this.state.parsedResult) {
-      display = JSON.stringify(this.state.parsedResult);
+      var lexDebugger = JSON.stringify(this.state.lexDebugger);
+      var parsedResult = this.state.parsedResult;
+      return (
+        <div>
+          <pre style={style1}>{lexDebugger}</pre>
+          <pre style={style2}>{parsedResult}</pre>
+        </div>
+      );
     } else {
-      display = '';
+      return (<div><pre style={baseStyle}></pre></div>)
     }
-
-    return (
-      <pre style={style}>{display}</pre>
-    );
   }
 });
 
