@@ -29,7 +29,6 @@ var ParserOutputView = React.createClass({
     var baseStyle = {
       width: 400,
       height: 222,
-      fontFamily: 'monospace',
       fontSize: 12
     };
 

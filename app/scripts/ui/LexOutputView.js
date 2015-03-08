@@ -29,7 +29,8 @@ var LexOutputView = React.createClass({
     };
 
     var ulStyle = {
-      listStyleType: 'none'
+      listStyleType: 'none',
+      fontFamily: 'monospace'
     };
 
     var lexDebugger = this.state.lexDebugger || [];

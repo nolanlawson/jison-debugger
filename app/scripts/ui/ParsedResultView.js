@@ -23,7 +23,7 @@ var ParsedResultView = React.createClass({
     this.setState(state);
   },
   render: function () {
-    var style = {width: 400, height: 100, fontFamily: 'monospace', fontSize: 12};
+    var style = {width: 400, height: 100, fontSize: 12};
 
     var parsedResult = this.state.parsedResult || '';
     return (
