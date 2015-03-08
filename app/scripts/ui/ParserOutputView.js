@@ -26,7 +26,12 @@ var ParserOutputView = React.createClass({
     this.setState(state);
   },
   render: function () {
-    var baseStyle = { width: 400, height: 222, fontFamily: 'monospace', fontSize: 12};
+    var baseStyle = {
+      width: 400,
+      height: 222,
+      fontFamily: 'monospace',
+      fontSize: 12
+    };
 
     if (this.state.parsedError) {
       return (

@@ -1840,12 +1840,16 @@ _handle_error:
 
         switch (action[0]) {
             case 1: // shift
+                //console.log("shift");
                 //this.shiftCount++;
 
                 stack.push(symbol);
                 vstack.push(lexer.yytext);
                 lstack.push(lexer.yylloc);
                 stack.push(action[1]); // push state
+                //console.log('stack', stack);
+                //console.log('vstack', vstack);
+                //console.log('lstack', lstack);
                 symbol = null;
                 if (!preErrorSymbol) { // normal execution/no error
                     yyleng = lexer.yyleng;
@@ -1863,6 +1867,7 @@ _handle_error:
                 break;
 
             case 2:
+                console.log("reduce");
                 // reduce
                 //this.reductionCount++;
 
@@ -1896,12 +1901,16 @@ _handle_error:
                 stack.push(this.productions_[action[1]][0]);    // push nonterminal (reduce)
                 vstack.push(yyval.$);
                 lstack.push(yyval._$);
+                console.log('stack', stack);
+                console.log('vstack', vstack);
+                console.log('lstack', lstack);
                 // goto new state = table[STATE][NONTERMINAL]
                 newState = table[stack[stack.length-2]][stack[stack.length-1]];
                 stack.push(newState);
                 break;
 
             case 3:
+                console.log("accept");
                 // accept
                 return true;
         }

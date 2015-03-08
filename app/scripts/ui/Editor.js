@@ -49,12 +49,14 @@ var Editor = React.createClass({
 
     return (
       <div>
+        <h5>Write your grammar</h5>
         <textarea
           style={textAreaStyle}
           value={this.state.grammarText}
           onChange={this.handleGrammarChange}>
         </textarea>
         <div>
+          <h5>Sample text</h5>
           <input
             style={inputStyle}
             type="text"

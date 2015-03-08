@@ -4,6 +4,7 @@
   "dependencies": {
     "jquery": "~2.1.1",
     "bootstrap-sass-official": ">=3.3.0",
-    "modernizr": "^2.8.3"
+    "modernizr": "^2.8.3",
+    "blob-util": "~1.1.1"
   }
 }

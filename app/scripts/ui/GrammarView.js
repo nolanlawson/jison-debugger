@@ -2,6 +2,8 @@
 
 /** @jsx React.DOM */
 
+/* global blobUtil */
+
 var GrammarStore = require('../stores/GrammarStore');
 
 var GrammarView = React.createClass({
@@ -22,24 +24,61 @@ var GrammarView = React.createClass({
     };
     this.setState(state);
   },
+  download: function () {
+    var parser = GrammarStore.getActiveCompiledParser();
+    var blob = blobUtil.createBlob([parser],
+      {type: 'text/javascript'}
+    );
+    window.open(blobUtil.createObjectURL(blob));
+  },
+  downloadJSON: function () {
+    var grammar = GrammarStore.getActiveCompiledGrammar();
+    var blob = blobUtil.createBlob(
+      [JSON.stringify(grammar, null, '  ')],
+      {type: 'application/json'}
+    );
+    window.open(blobUtil.createObjectURL(blob));
+  },
   render: function () {
     var style = {
       width: 400,
-      height: 300,
-      fontFamily: 'monospace'
+      height: 200,
+      fontSize: 10
     };
 
     var display;
     if (this.state.compiledError) {
       display = this.state.compiledError.message;
     } else if (this.state.compiledGrammar) {
-      display = JSON.stringify(this.state.compiledGrammar);
+      display = JSON.stringify(this.state.compiledGrammar, null, '  ');
     } else {
       display = '';
     }
 
     return (
-      <pre style={style}>{display}</pre>
+      <div>
+        <h5>Compiled grammar</h5>
+        <pre style={style}>{display}</pre>
+        <div>
+          <button
+            className="btn btn-primary"
+            title="Download a Jison parser that will create a window.parser object"
+            type="button"
+            onClick={this.download}
+          >
+              Download as JavaScript
+          </button>
+          <button
+            style={{marginLeft: 5}}
+            className="btn"
+            title="Download the JSON grammar you see here. You will need to create it with new Jison.Parser(grammar)"
+            type="button"
+            onClick={this.downloadJSON}
+          >
+              Download as JSON
+          </button>
+        </div>
+      </div>
     );
   }
 });
