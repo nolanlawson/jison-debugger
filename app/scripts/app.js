@@ -5,7 +5,7 @@
 var React = window.React = require('react');
 var Editor = require("./ui/Editor");
 var GrammarView = require("./ui/GrammarView");
-var ParsedTextView = require("./ui/ParsedTextView");
+var ParserOutputView = require("./ui/ParserOutputView");
 
 var mountNode = document.getElementById('app');
 
@@ -22,7 +22,7 @@ var App = React.createClass({
           <li style={liStyle}>
             <div>
               <GrammarView />
-              <ParsedTextView/>
+              <ParserOutputView/>
             </div>
           </li>
         </ul>

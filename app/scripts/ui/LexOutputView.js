@@ -22,36 +22,42 @@ var LexOutputView = React.createClass({
     this.setState(state);
   },
   render: function () {
-    var ulStyle = {
+
+    var mainStyle = {
       width: 400,
-      height: 122,
-      fontSize: 13,
+      height: 122
+    };
+
+    var ulStyle = {
       listStyleType: 'none'
     };
 
     var lexDebugger = this.state.lexDebugger || [];
 
     return (
-      <ul style={ulStyle}>
-        {
-          lexDebugger.map(function (token) {
-            return (
-              <li style={{float: 'left'}}>
-                <span
-                  style={{display:'block'}}
-                  className="label label-default">
-                    {token.tokenText || 'EOF'}
-                </span>
-                <span
-                  style={{display:'block'}}
-                  className={"label label-" + Colorizer.getColorFor(token.tokenName)}>
-                    {token.tokenName}
-                </span>
-              </li>
-            )
-          })
-        }
-      </ul>
+      <div style={mainStyle}>
+        <h5>Tokens</h5>
+        <ul style={ulStyle}>
+          {
+            lexDebugger.map(function (token) {
+              return (
+                <li style={{float: 'left'}}>
+                  <span
+                    style={{display:'block', fontSize: 13, marginLeft: 2, marginBottom: 2}}
+                    className="label label-default">
+                      {token.tokenText || 'EOF'}
+                  </span>
+                  <span
+                    style={{display:'block', fontSize: 13, marginLeft: 2}}
+                    className={"label label-" + Colorizer.getColorFor(token.tokenName)}>
+                      {token.tokenName}
+                  </span>
+                </li>
+              )
+            })
+          }
+        </ul>
+      </div>
     );
   }
 });
