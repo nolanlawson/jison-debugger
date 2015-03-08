@@ -36,6 +36,9 @@ var GrammarStore = assign({}, EventEmitter.prototype, {
   getActiveParsedResult() {
     return activeParsedResult;
   },
+  getActiveParsedError() {
+    return activeParsedError;
+  },
   getActiveLexDebugger() {
     return activeLexDebugger;
   }
