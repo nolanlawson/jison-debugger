@@ -6,9 +6,6 @@ Jison.print = function () {};
 
 // request to parse a grammar
 self.addEventListener('message', function (e) {
-  if (typeof e.data !== 'string') {
-    return;
-  }
 
   var grammar = e.data;
 

@@ -40,7 +40,8 @@ gulp.task('scripts', function () {
         insertGlobals: true,
         cache: {},
         packageCache: {},
-        fullPaths: true
+        fullPaths: true,
+        debug: true
     }));
 
     bundler.on('update', rebundle);

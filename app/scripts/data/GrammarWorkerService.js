@@ -3,21 +3,11 @@
 var worker = new Worker('/worker/grammar-worker.js');
 var CompiledGrammarActionCreator = require('../actions/CompiledGrammarActionCreator');
 
-var timeout;
-function debounce(delay, fun) {
-  if (timeout) {
-    clearTimeout(timeout);
-  }
-  timeout = setTimeout(function () {
-    fun();
-    timeout = null;
-  }, delay);
-}
+var debounce = require('../util/util').debounce;
 
 var GrammarWorkerService =  {
   compileGrammar: function (grammar) {
     debounce(700, function () {
-      console.log('parsing', grammar);
       worker.addEventListener('error', function (e) {
         CompiledGrammarActionCreator.grammarErrored(e);
       });

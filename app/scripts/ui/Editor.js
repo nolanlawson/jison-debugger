@@ -3,13 +3,16 @@
 /** @jsx React.DOM */
 var React = require('react');
 var GrammarActionCreator = require('../actions/GrammarActionCreator');
+var ParserActionCreator = require('../actions/ParserActionCreator');
 var GrammarStore = require('../stores/GrammarStore');
+var constants = require('../util/constants');
 
-var INITIAL_GRAMMAR = '/* description: Parses end executes mathematical expressions. */\n\n/* lexical grammar */\n%lex\n%%\n\n\\s+                   /* skip whitespace */\n[0-9]+("."[0-9]+)?\x08  return \'NUMBER\'\n"*"                   return \'*\'\n"/"                   return \'/\'\n"-"                   return \'-\'\n"+"                   return \'+\'\n"^"                   return \'^\'\n"("                   return \'(\'\n")"                   return \')\'\n"PI"                  return \'PI\'\n"E"                   return \'E\'\n<<EOF>>               return \'EOF\'\n.                     return \'INVALID\'\n\n/lex\n\n/* operator associations and precedence */\n\n%left \'+\' \'-\'\n%left \'*\' \'/\'\n%left \'^\'\n%left UMINUS\n\n%start expressions\n\n%% /* language grammar */\n\nexpressions\n    : e EOF\n        {return $1;}\n    ;\n\ne\n    : e \'+\' e\n        {$$ = $1+$3;}\n    | e \'-\' e\n        {$$ = $1-$3;}\n    | e \'*\' e\n        {$$ = $1*$3;}\n    | e \'/\' e\n        {$$ = $1/$3;}\n    | e \'^\' e\n        {$$ = Math.pow($1, $3);}\n    | \'-\' e %prec UMINUS\n        {$$ = -$2;}\n    | \'(\' e \')\'\n        {$$ = $2;}\n    | NUMBER\n        {$$ = Number(yytext);}\n    | E\n        {$$ = Math.E;}\n    | PI\n        {$$ = Math.PI;}\n    ;\n';
+var INITIAL_GRAMMAR = constants.INITIAL_GRAMMAR;
+var INITIAL_TEXT_TO_PARSE = constants.INITIAL_TEXT_TO_PARSE;
 
 var Editor = React.createClass({
   getInitialState: function () {
-    return {text: INITIAL_GRAMMAR};
+    return {grammarText: INITIAL_GRAMMAR, textToParse: INITIAL_TEXT_TO_PARSE};
   },
   componentDidMount: function () {
     this._recompileGrammar(INITIAL_GRAMMAR);
@@ -17,22 +20,49 @@ var Editor = React.createClass({
   _recompileGrammar: function (text) {
     GrammarActionCreator.compileGrammar(text);
   },
-  handleChange: function (event) {
+  _reparseText: function (text) {
+    ParserActionCreator.parseText(text);
+  },
+  handleGrammarChange: function (event) {
     var text = event.target.value;
     this._recompileGrammar(text);
-    this.setState({text: text});
+    this.state.grammarText = text;
+    this.setState(this.state);
+  },
+  handleTextToParseChange: function (event) {
+    var text = event.target.value;
+    this._reparseText(text);
+    this.state.textToParse = text;
+    this.setState(this.state);
   },
   render: function () {
 
-    var style = {
+    var textAreaStyle = {
       width: 500,
       height: 500,
+      fontSize: 12,
       fontFamily: 'monospace'
+    };
+
+    var inputStyle = {
+      width: 500
     };
 
     return (
       <div>
-        <textarea style={style} value={this.state.text} onChange={this.handleChange}></textarea>
+        <textarea
+          style={textAreaStyle}
+          value={this.state.grammarText}
+          onChange={this.handleGrammarChange}>
+        </textarea>
+        <div>
+          <input
+            style={inputStyle}
+            type="text"
+            value={this.state.textToParse}
+            onChange={this.handleTextToParseChange}>
+          </input>
+        </div>
       </div>
     )
   }

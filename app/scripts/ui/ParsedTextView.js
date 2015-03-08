@@ -4,11 +4,11 @@
 
 var GrammarStore = require('../stores/GrammarStore');
 
-var GrammarView = React.createClass({
+var ParsedTextView = React.createClass({
   getInitialState: function () {
     var state = {
-      compiledError: GrammarStore.getActiveCompiledError(),
-      compiledGrammar: GrammarStore.getActiveCompiledGrammar()
+      parsedResult: GrammarStore.getActiveParsedResult(),
+      parsedError: GrammarStore.getActiveCompiledError()
     };
     return state;
   },
@@ -17,23 +17,23 @@ var GrammarView = React.createClass({
   },
   _onChange: function () {
     var state = {
-      compiledError: GrammarStore.getActiveCompiledError(),
-      compiledGrammar: GrammarStore.getActiveCompiledGrammar()
+      parsedResult: GrammarStore.getActiveParsedResult(),
+      parsedError: GrammarStore.getActiveCompiledError()
     };
     this.setState(state);
   },
   render: function () {
     var style = {
       width: 400,
-      height: 300,
+      height: 222,
       fontFamily: 'monospace'
     };
 
     var display;
-    if (this.state.compiledError) {
-      display = this.state.compiledError.message;
-    } else if (this.state.compiledGrammar) {
-      display = JSON.stringify(this.state.compiledGrammar);
+    if (this.state.parsedError) {
+      display = this.state.parsedError.message;
+    } else if (this.state.parsedResult) {
+      display = JSON.stringify(this.state.parsedResult);
     } else {
       display = '';
     }
@@ -44,4 +44,4 @@ var GrammarView = React.createClass({
   }
 });
 
-module.exports = GrammarView;
+module.exports = ParsedTextView;
