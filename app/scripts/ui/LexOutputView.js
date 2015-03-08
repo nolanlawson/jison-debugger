@@ -34,6 +34,21 @@ var LexOutputView = React.createClass({
 
     var lexDebugger = this.state.lexDebugger || [];
 
+    var tokenTextStyle = {
+      fontWeight: 'normal',
+      display:'block',
+      fontSize: 13,
+      marginLeft: 2,
+      marginBottom: 2
+    };
+
+    var tokenNameStyle = {
+      fontWeight: 'normal',
+      display:'block',
+      fontSize: 13,
+      marginLeft: 2
+    };
+
     return (
       <div style={mainStyle}>
         <h5>Tokens</h5>
@@ -43,12 +58,12 @@ var LexOutputView = React.createClass({
               return (
                 <li style={{float: 'left'}}>
                   <span
-                    style={{display:'block', fontSize: 13, marginLeft: 2, marginBottom: 2}}
+                    style={tokenTextStyle}
                     className="label label-default">
                       {token.tokenText || 'EOF'}
                   </span>
                   <span
-                    style={{display:'block', fontSize: 13, marginLeft: 2}}
+                    style={tokenNameStyle}
                     className={"label label-" + Colorizer.getColorFor(token.tokenName)}>
                       {token.tokenName}
                   </span>
