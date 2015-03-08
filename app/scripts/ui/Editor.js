@@ -4,7 +4,6 @@
 var React = require('react');
 var GrammarActionCreator = require('../actions/GrammarActionCreator');
 var ParserActionCreator = require('../actions/ParserActionCreator');
-var GrammarStore = require('../stores/GrammarStore');
 var constants = require('../util/constants');
 
 var INITIAL_GRAMMAR = constants.INITIAL_GRAMMAR;

@@ -1,22 +1,39 @@
-'use strict';
 /* jshint worker:true */
-/* global Jison,ebnf */
+/* global Jison,ebnf,parser */
 importScripts('./jison.js');
 Jison.print = function () {};
 
-// request to parse a grammar
-self.addEventListener('message', function (e) {
-
-  var grammar = e.data;
-
-  var cfg;
+function compileGrammar(self, grammar) {
+  var compiledGrammar;
 
   try {
-    cfg = JSON.parse(grammar);
+    compiledGrammar = JSON.parse(grammar);
   } catch (e) {
     // intentionally throw an error here if it fails to parse
-    cfg = bnf.parse(grammar);
+    compiledGrammar = bnf.parse(grammar);
   }
 
-  self.postMessage({compiledGrammar: cfg});
+  var compiledParser = new Jison.Parser(compiledGrammar).generate();
+
+  self.postMessage({compiledGrammar: compiledGrammar, compiledParser: compiledParser});
+}
+
+function parseText(self, request) {
+  var textToParse = request.textToParse;
+  eval(request.compiledParser); // creates a global "parser" object
+  var compiledParser = parser;
+
+  Jison.lexDebugger = [];
+  var parsedResult = compiledParser.parse(textToParse);
+
+  self.postMessage({parsedResult: parsedResult, lexDebugger: Jison.lexDebugger});
+}
+
+// request to parse a grammar
+self.addEventListener('message', function (e) {
+  if (e.data.grammar) {
+    compileGrammar(self, e.data.grammar);
+  } else {
+    parseText(self, e.data);
+  }
 });

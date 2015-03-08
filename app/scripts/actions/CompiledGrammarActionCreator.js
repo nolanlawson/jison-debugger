@@ -10,10 +10,11 @@ module.exports = {
       error: error
     });
   },
-  grammarCompiled: function (compiled) {
+  grammarCompiled: function (data) {
     AppDispatcher.handleWorkerAction({
       type: ActionTypes.GRAMMAR_COMPILED,
-      compiledGrammar: compiled
+      compiledGrammar: data.compiledGrammar,
+      compiledParser: data.compiledParser
     });
   }
 };

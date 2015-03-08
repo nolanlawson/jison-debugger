@@ -1,8 +1,8 @@
 'use strict';
 
-var worker = new Worker('/worker/parser-worker.js');
-var GrammarStore = require('../stores/GrammarStore');
+var worker = new Worker('/worker/grammar-worker.js');
 var ParsedTextActionCreator = require('../actions/ParsedTextActionCreator');
+var GrammarStore = require('../stores/GrammarStore');
 var debounce = require('../util/util').debounce;
 
 var ParserWorkerService =  {
@@ -16,8 +16,8 @@ var ParserWorkerService =  {
       });
       // ask the web worker to parse the text for us
       worker.postMessage({
-        compiledGrammar: GrammarStore.getActiveCompiledGrammar(),
-        textToParse: text
+        textToParse: text,
+        compiledParser: GrammarStore.getActiveCompiledParser()
       });
     }.bind(this));
   }

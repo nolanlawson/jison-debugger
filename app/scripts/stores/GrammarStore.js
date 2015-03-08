@@ -8,6 +8,7 @@ var ActionTypes = require('../actions/ActionTypes');
 var CHANGE_EVENT = 'change';
 
 var activeCompiledGrammar = null;
+var activeCompiledParser = null;
 var activeCompiledError = null;
 var activeParsedResult = null;
 var activeParsedError = null;
@@ -25,6 +26,9 @@ var GrammarStore = assign({}, EventEmitter.prototype, {
   getActiveCompiledGrammar() {
     return activeCompiledGrammar;
   },
+  getActiveCompiledParser() {
+    return activeCompiledParser;
+  },
   getActiveCompiledError() {
     return activeCompiledError;
   },
@@ -39,11 +43,13 @@ GrammarStore.dispatchToken = AppDispatcher.register(function (payload) {
   switch (action.type) {
     case ActionTypes.GRAMMAR_COMPILED:
       activeCompiledGrammar = action.compiledGrammar;
+      activeCompiledParser = action.compiledParser;
       activeCompiledError = null;
       GrammarStore.emitChange();
       break;
     case ActionTypes.GRAMMAR_ERRORED:
       activeCompiledGrammar = null;
+      activeCompiledParser = null;
       activeCompiledError = action.error;
       GrammarStore.emitChange();
       break;

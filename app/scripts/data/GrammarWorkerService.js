@@ -12,10 +12,10 @@ var GrammarWorkerService =  {
         CompiledGrammarActionCreator.grammarErrored(e);
       });
       worker.addEventListener('message', function (e) {
-        CompiledGrammarActionCreator.grammarCompiled(e.data.compiledGrammar);
+        CompiledGrammarActionCreator.grammarCompiled(e.data);
       });
       // ask the web worker to parse the grammar for us
-      worker.postMessage(grammar);
+      worker.postMessage({grammar: grammar});
     }.bind(this));
   }
 };
