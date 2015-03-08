@@ -109,7 +109,7 @@ gulp.task('clean', function (cb) {
 
 
 // Bundle
-gulp.task('bundle', ['styles', 'scripts', 'bower', 'node_modules', 'worker'], function(){
+gulp.task('bundle', ['styles', 'scripts', 'bower', 'worker'], function(){
     return gulp.src('./app/*.html')
                .pipe($.useref.assets())
                .pipe($.useref.restore())
@@ -131,11 +131,6 @@ gulp.task('bower', function() {
     gulp.src('app/bower_components/**/*.js', {base: 'app/bower_components'})
         .pipe(gulp.dest('dist/bower_components/'));
 
-});
-
-gulp.task('node_modules', function() {
-  gulp.src('node_modules/{jison,ebnf-parser}/**/*.js', {base: 'node_modules'})
-    .pipe(gulp.dest('dist/node_modules/'));
 });
 
 gulp.task('worker', function() {

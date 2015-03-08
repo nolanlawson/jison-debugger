@@ -1,19 +1,314 @@
-!function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),f.Jison=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+
+},{}],2:[function(require,module,exports){
+(function (process){
+// Copyright Joyent, Inc. and other Node contributors.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to permit
+// persons to whom the Software is furnished to do so, subject to the
+// following conditions:
+//
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+// resolves . and .. elements in a path array with directory names there
+// must be no slashes, empty elements, or device names (c:\) in the array
+// (so also no leading and trailing slashes - it does not distinguish
+// relative and absolute paths)
+function normalizeArray(parts, allowAboveRoot) {
+  // if the path tries to go above the root, `up` ends up > 0
+  var up = 0;
+  for (var i = parts.length - 1; i >= 0; i--) {
+    var last = parts[i];
+    if (last === '.') {
+      parts.splice(i, 1);
+    } else if (last === '..') {
+      parts.splice(i, 1);
+      up++;
+    } else if (up) {
+      parts.splice(i, 1);
+      up--;
+    }
+  }
+
+  // if the path is allowed to go above the root, restore leading ..s
+  if (allowAboveRoot) {
+    for (; up--; up) {
+      parts.unshift('..');
+    }
+  }
+
+  return parts;
+}
+
+// Split a filename into [root, dir, basename, ext], unix version
+// 'root' is just a slash, or nothing.
+var splitPathRe =
+    /^(\/?|)([\s\S]*?)((?:\.{1,2}|[^\/]+?|)(\.[^.\/]*|))(?:[\/]*)$/;
+var splitPath = function(filename) {
+  return splitPathRe.exec(filename).slice(1);
+};
+
+// path.resolve([from ...], to)
+// posix version
+exports.resolve = function() {
+  var resolvedPath = '',
+      resolvedAbsolute = false;
+
+  for (var i = arguments.length - 1; i >= -1 && !resolvedAbsolute; i--) {
+    var path = (i >= 0) ? arguments[i] : process.cwd();
+
+    // Skip empty and invalid entries
+    if (typeof path !== 'string') {
+      throw new TypeError('Arguments to path.resolve must be strings');
+    } else if (!path) {
+      continue;
+    }
+
+    resolvedPath = path + '/' + resolvedPath;
+    resolvedAbsolute = path.charAt(0) === '/';
+  }
+
+  // At this point the path should be resolved to a full absolute path, but
+  // handle relative paths to be safe (might happen when process.cwd() fails)
+
+  // Normalize the path
+  resolvedPath = normalizeArray(filter(resolvedPath.split('/'), function(p) {
+    return !!p;
+  }), !resolvedAbsolute).join('/');
+
+  return ((resolvedAbsolute ? '/' : '') + resolvedPath) || '.';
+};
+
+// path.normalize(path)
+// posix version
+exports.normalize = function(path) {
+  var isAbsolute = exports.isAbsolute(path),
+      trailingSlash = substr(path, -1) === '/';
+
+  // Normalize the path
+  path = normalizeArray(filter(path.split('/'), function(p) {
+    return !!p;
+  }), !isAbsolute).join('/');
+
+  if (!path && !isAbsolute) {
+    path = '.';
+  }
+  if (path && trailingSlash) {
+    path += '/';
+  }
+
+  return (isAbsolute ? '/' : '') + path;
+};
+
+// posix version
+exports.isAbsolute = function(path) {
+  return path.charAt(0) === '/';
+};
+
+// posix version
+exports.join = function() {
+  var paths = Array.prototype.slice.call(arguments, 0);
+  return exports.normalize(filter(paths, function(p, index) {
+    if (typeof p !== 'string') {
+      throw new TypeError('Arguments to path.join must be strings');
+    }
+    return p;
+  }).join('/'));
+};
+
+
+// path.relative(from, to)
+// posix version
+exports.relative = function(from, to) {
+  from = exports.resolve(from).substr(1);
+  to = exports.resolve(to).substr(1);
+
+  function trim(arr) {
+    var start = 0;
+    for (; start < arr.length; start++) {
+      if (arr[start] !== '') break;
+    }
+
+    var end = arr.length - 1;
+    for (; end >= 0; end--) {
+      if (arr[end] !== '') break;
+    }
+
+    if (start > end) return [];
+    return arr.slice(start, end - start + 1);
+  }
+
+  var fromParts = trim(from.split('/'));
+  var toParts = trim(to.split('/'));
+
+  var length = Math.min(fromParts.length, toParts.length);
+  var samePartsLength = length;
+  for (var i = 0; i < length; i++) {
+    if (fromParts[i] !== toParts[i]) {
+      samePartsLength = i;
+      break;
+    }
+  }
+
+  var outputParts = [];
+  for (var i = samePartsLength; i < fromParts.length; i++) {
+    outputParts.push('..');
+  }
+
+  outputParts = outputParts.concat(toParts.slice(samePartsLength));
+
+  return outputParts.join('/');
+};
+
+exports.sep = '/';
+exports.delimiter = ':';
+
+exports.dirname = function(path) {
+  var result = splitPath(path),
+      root = result[0],
+      dir = result[1];
+
+  if (!root && !dir) {
+    // No dirname whatsoever
+    return '.';
+  }
+
+  if (dir) {
+    // It has a dirname, strip trailing slash
+    dir = dir.substr(0, dir.length - 1);
+  }
+
+  return root + dir;
+};
+
+
+exports.basename = function(path, ext) {
+  var f = splitPath(path)[2];
+  // TODO: make this comparison case-insensitive on windows?
+  if (ext && f.substr(-1 * ext.length) === ext) {
+    f = f.substr(0, f.length - ext.length);
+  }
+  return f;
+};
+
+
+exports.extname = function(path) {
+  return splitPath(path)[3];
+};
+
+function filter (xs, f) {
+    if (xs.filter) return xs.filter(f);
+    var res = [];
+    for (var i = 0; i < xs.length; i++) {
+        if (f(xs[i], i, xs)) res.push(xs[i]);
+    }
+    return res;
+}
+
+// String.prototype.substr - negative index don't work in IE8
+var substr = 'ab'.substr(-1) === 'b'
+    ? function (str, start, len) { return str.substr(start, len) }
+    : function (str, start, len) {
+        if (start < 0) start = str.length + start;
+        return str.substr(start, len);
+    }
+;
+
+}).call(this,require('_process'))
+},{"_process":3}],3:[function(require,module,exports){
+// shim for using process in browser
+
+var process = module.exports = {};
+var queue = [];
+var draining = false;
+
+function drainQueue() {
+    if (draining) {
+        return;
+    }
+    draining = true;
+    var currentQueue;
+    var len = queue.length;
+    while(len) {
+        currentQueue = queue;
+        queue = [];
+        var i = -1;
+        while (++i < len) {
+            currentQueue[i]();
+        }
+        len = queue.length;
+    }
+    draining = false;
+}
+process.nextTick = function (fun) {
+    queue.push(fun);
+    if (!draining) {
+        setTimeout(drainQueue, 0);
+    }
+};
+
+process.title = 'browser';
+process.browser = true;
+process.env = {};
+process.argv = [];
+process.version = ''; // empty string to avoid regexp issues
+process.versions = {};
+
+function noop() {}
+
+process.on = noop;
+process.addListener = noop;
+process.once = noop;
+process.off = noop;
+process.removeListener = noop;
+process.removeAllListeners = noop;
+process.emit = noop;
+
+process.binding = function (name) {
+    throw new Error('process.binding is not supported');
+};
+
+// TODO(shtylman)
+process.cwd = function () { return '/' };
+process.chdir = function (dir) {
+    throw new Error('process.chdir is not supported');
+};
+process.umask = function() { return 0; };
+
+},{}],4:[function(require,module,exports){
+
+Jison = require('./lib/jison.js');
+bnf = require('ebnf-parser');
+
+},{"./lib/jison.js":5,"ebnf-parser":9}],5:[function(require,module,exports){
 (function (process){
 // Jison, an LR(0), SLR(1), LARL(1), LR(1) Parser Generator
 // Zachary Carter <zach@carter.name>
 // MIT X Licensed
 
-var typal      = _dereq_('./util/typal').typal;
-var Set        = _dereq_('./util/set').Set;
-var Lexer      = _dereq_('jison-lex');
-var ebnfParser = _dereq_('ebnf-parser');
-var JSONSelect = _dereq_('JSONSelect');
-var esprima    = _dereq_('esprima');
-var escodegen  = _dereq_('escodegen');
+var typal      = require('./util/typal').typal;
+var Set        = require('./util/set').Set;
+var Lexer      = require('jison-lex');
+var ebnfParser = require('ebnf-parser');
+var JSONSelect = require('JSONSelect');
+var esprima    = require('esprima');
+var escodegen  = require('escodegen');
 
 
-var version = _dereq_('../package.json').version;
+var version = require('../package.json').version;
 
 var Jison = exports.Jison = exports;
 Jison.version = version;
@@ -1282,7 +1577,7 @@ function commonjsMain (args) {
         console.log('Usage: '+args[0]+' FILE');
         process.exit(1);
     }
-    var source = _dereq_('fs').readFileSync(_dereq_('path').normalize(args[1]), "utf8");
+    var source = require('fs').readFileSync(require('path').normalize(args[1]), "utf8");
     return exports.parser.parse(source);
 }
 
@@ -1340,6 +1635,7 @@ lrGeneratorMixin.createParser = function createParser () {
     }
 
     // backwards compatability
+    p.lexer = this.lexer;
     p.generate = bind('generate');
     p.generateAMDModule = bind('generateAMDModule');
     p.generateModule = bind('generateModule');
@@ -1424,6 +1720,9 @@ _token_stack:
         if (typeof token !== 'number') {
             token = self.symbols_[token] || token;
         }
+        var tokenName = Object.keys(self.symbols_).filter(function (x) {return self.symbols_[x] === token;});
+        var tokenText = lexer.match;
+        console.log(tokenName, tokenText);
         return token;
     }
 
@@ -1913,11 +2212,11 @@ return function Parser (g, options) {
 
 })();
 
-}).call(this,_dereq_('_process'))
-},{"../package.json":30,"./util/set":2,"./util/typal":3,"JSONSelect":4,"_process":33,"ebnf-parser":5,"escodegen":9,"esprima":26,"fs":31,"jison-lex":28,"path":32}],2:[function(_dereq_,module,exports){
+}).call(this,require('_process'))
+},{"../package.json":34,"./util/set":6,"./util/typal":7,"JSONSelect":8,"_process":3,"ebnf-parser":9,"escodegen":13,"esprima":30,"fs":1,"jison-lex":32,"path":2}],6:[function(require,module,exports){
 // Set class to wrap arrays
 
-var typal = _dereq_("./typal").typal;
+var typal = require("./typal").typal;
 
 var setMixin = {
     constructor: function Set_constructor (set, raw) {
@@ -2009,7 +2308,7 @@ if (typeof exports !== 'undefined')
     exports.Set = Set;
 
 
-},{"./typal":3}],3:[function(_dereq_,module,exports){
+},{"./typal":7}],7:[function(require,module,exports){
 /*
  * Introduces a typal object to make classical/prototypal patterns easier
  * Plus some AOP sugar
@@ -2101,7 +2400,7 @@ return {
 if (typeof exports !== 'undefined')
     exports.typal = typal;
 
-},{}],4:[function(_dereq_,module,exports){
+},{}],8:[function(require,module,exports){
 /*! Copyright (c) 2011, Lloyd Hilaiel, ISC License */
 /*
  * This is the JSONSelect reference implementation, in javascript.  This
@@ -2675,10 +2974,10 @@ if (typeof exports !== 'undefined')
     exports.compile = compile;
 })(typeof exports === "undefined" ? (window.JSONSelect = {}) : exports);
 
-},{}],5:[function(_dereq_,module,exports){
-var bnf = _dereq_("./parser").parser,
-    ebnf = _dereq_("./ebnf-transform"),
-    jisonlex = _dereq_("lex-parser");
+},{}],9:[function(require,module,exports){
+var bnf = require("./parser").parser,
+    ebnf = require("./ebnf-transform"),
+    jisonlex = require("lex-parser");
 
 exports.parse = function parse (grammar) { return bnf.parse(grammar); };
 exports.transform = ebnf.transform;
@@ -2718,9 +3017,9 @@ var parseLex = function (text) {
 };
 
 
-},{"./ebnf-transform":6,"./parser":7,"lex-parser":29}],6:[function(_dereq_,module,exports){
+},{"./ebnf-transform":10,"./parser":11,"lex-parser":33}],10:[function(require,module,exports){
 var EBNF = (function(){
-    var parser = _dereq_('./transform-parser.js');
+    var parser = require('./transform-parser.js');
 
     var transformExpression = function(e, opts, emit) {
         var type = e[0], value = e[1], name = false;
@@ -2855,7 +3154,7 @@ var EBNF = (function(){
 exports.transform = EBNF.transform;
 
 
-},{"./transform-parser.js":8}],7:[function(_dereq_,module,exports){
+},{"./transform-parser.js":12}],11:[function(require,module,exports){
 (function (process){
 /* parser generated by jison 0.4.11 */
 /*
@@ -2933,8 +3232,8 @@ exports.transform = EBNF.transform;
 var bnf = (function(){
 var parser = {trace: function trace() { },
 yy: {},
-symbols_: {"error":2,"spec":3,"declaration_list":4,"%":5,"grammar":6,"optional_end_block":7,"EOF":8,"CODE":9,"declaration":10,"START":11,"id":12,"LEX_BLOCK":13,"operator":14,"ACTION":15,"parse_param":16,"options":17,"OPTIONS":18,"token_list":19,"PARSE_PARAM":20,"associativity":21,"LEFT":22,"RIGHT":23,"NONASSOC":24,"symbol":25,"production_list":26,"production":27,":":28,"handle_list":29,";":30,"|":31,"handle_action":32,"handle":33,"prec":34,"action":35,"expression_suffix":36,"handle_sublist":37,"expression":38,"suffix":39,"ALIAS":40,"ID":41,"STRING":42,"(":43,")":44,"*":45,"?":46,"+":47,"PREC":48,"{":49,"action_body":50,"}":51,"ARROW_ACTION":52,"action_comments_body":53,"ACTION_BODY":54,"$accept":0,"$end":1},
-terminals_: {2:"error",5:"%",8:"EOF",9:"CODE",11:"START",13:"LEX_BLOCK",15:"ACTION",18:"OPTIONS",20:"PARSE_PARAM",22:"LEFT",23:"RIGHT",24:"NONASSOC",28:":",30:";",31:"|",40:"ALIAS",41:"ID",42:"STRING",43:"(",44:")",45:"*",46:"?",47:"+",48:"PREC",49:"{",51:"}",52:"ARROW_ACTION",54:"ACTION_BODY"},
+symbols_: {"error":2,"spec":3,"declaration_list":4,"%%":5,"grammar":6,"optional_end_block":7,"EOF":8,"CODE":9,"declaration":10,"START":11,"id":12,"LEX_BLOCK":13,"operator":14,"ACTION":15,"parse_param":16,"options":17,"OPTIONS":18,"token_list":19,"PARSE_PARAM":20,"associativity":21,"LEFT":22,"RIGHT":23,"NONASSOC":24,"symbol":25,"production_list":26,"production":27,":":28,"handle_list":29,";":30,"|":31,"handle_action":32,"handle":33,"prec":34,"action":35,"expression_suffix":36,"handle_sublist":37,"expression":38,"suffix":39,"ALIAS":40,"ID":41,"STRING":42,"(":43,")":44,"*":45,"?":46,"+":47,"PREC":48,"{":49,"action_body":50,"}":51,"ARROW_ACTION":52,"action_comments_body":53,"ACTION_BODY":54,"$accept":0,"$end":1},
+terminals_: {2:"error",5:"%%",8:"EOF",9:"CODE",11:"START",13:"LEX_BLOCK",15:"ACTION",18:"OPTIONS",20:"PARSE_PARAM",22:"LEFT",23:"RIGHT",24:"NONASSOC",28:":",30:";",31:"|",40:"ALIAS",41:"ID",42:"STRING",43:"(",44:")",45:"*",46:"?",47:"+",48:"PREC",49:"{",51:"}",52:"ARROW_ACTION",54:"ACTION_BODY"},
 productions_: [0,[3,5],[3,6],[7,0],[7,1],[4,2],[4,0],[10,2],[10,1],[10,1],[10,1],[10,1],[10,1],[17,2],[16,2],[14,2],[21,1],[21,1],[21,1],[19,2],[19,1],[6,1],[26,2],[26,1],[27,4],[29,3],[29,1],[32,3],[33,2],[33,0],[37,3],[37,1],[36,3],[36,2],[38,1],[38,1],[38,3],[39,0],[39,1],[39,1],[39,1],[34,2],[34,0],[25,1],[25,1],[12,1],[35,3],[35,1],[35,1],[35,0],[50,0],[50,1],[50,5],[50,4],[53,1],[53,2]],
 performAction: function anonymous(yytext, yyleng, yylineno, yy, yystate /* action[1] */, $$ /* vstack */, _$ /* lstack */) {
 /* this == yyval */
@@ -3201,7 +3500,7 @@ parse: function parse(input) {
     return true;
 }};
 
-var transform = _dereq_('./ebnf-transform').transform;
+var transform = require('./ebnf-transform').transform;
 var ebnf = false;
 
 
@@ -3629,7 +3928,7 @@ case 43:return 9;
 break;
 }
 },
-rules: [/^(?:%)/,/^(?:\()/,/^(?:\))/,/^(?:\*)/,/^(?:\?)/,/^(?:\+)/,/^(?:\s+)/,/^(?:\/\/.*)/,/^(?:\/\*(.|\n|\r)*?\*\/)/,/^(?:\[([a-zA-Z][a-zA-Z0-9_-]*)\])/,/^(?:([a-zA-Z][a-zA-Z0-9_-]*))/,/^(?:"[^"]+")/,/^(?:'[^']+')/,/^(?::)/,/^(?:;)/,/^(?:\|)/,/^(?:%)/,/^(?:%ebnf\b)/,/^(?:%prec\b)/,/^(?:%start\b)/,/^(?:%left\b)/,/^(?:%right\b)/,/^(?:%nonassoc\b)/,/^(?:%parse-param\b)/,/^(?:%options\b)/,/^(?:%lex[\w\W]*?\/lex\b)/,/^(?:%[a-zA-Z]+[^\r\n]*)/,/^(?:<[a-zA-Z]*>)/,/^(?:\{\{[\w\W]*?\}\})/,/^(?:%\{(.|\r|\n)*?%\})/,/^(?:\{)/,/^(?:->.*)/,/^(?:.)/,/^(?:$)/,/^(?:\/\*(.|\n|\r)*?\*\/)/,/^(?:\/\/.*)/,/^(?:\/[^ /]*?['"{}'][^ ]*?\/)/,/^(?:"(\\\\|\\"|[^"])*")/,/^(?:'(\\\\|\\'|[^'])*')/,/^(?:[/"'][^{}/"']+)/,/^(?:[^{}/"']+)/,/^(?:\{)/,/^(?:\})/,/^(?:(.|\n|\r)+)/],
+rules: [/^(?:%%)/,/^(?:\()/,/^(?:\))/,/^(?:\*)/,/^(?:\?)/,/^(?:\+)/,/^(?:\s+)/,/^(?:\/\/.*)/,/^(?:\/\*(.|\n|\r)*?\*\/)/,/^(?:\[([a-zA-Z][a-zA-Z0-9_-]*)\])/,/^(?:([a-zA-Z][a-zA-Z0-9_-]*))/,/^(?:"[^"]+")/,/^(?:'[^']+')/,/^(?::)/,/^(?:;)/,/^(?:\|)/,/^(?:%%)/,/^(?:%ebnf\b)/,/^(?:%prec\b)/,/^(?:%start\b)/,/^(?:%left\b)/,/^(?:%right\b)/,/^(?:%nonassoc\b)/,/^(?:%parse-param\b)/,/^(?:%options\b)/,/^(?:%lex[\w\W]*?\/lex\b)/,/^(?:%[a-zA-Z]+[^\r\n]*)/,/^(?:<[a-zA-Z]*>)/,/^(?:\{\{[\w\W]*?\}\})/,/^(?:%\{(.|\r|\n)*?%\})/,/^(?:\{)/,/^(?:->.*)/,/^(?:.)/,/^(?:$)/,/^(?:\/\*(.|\n|\r)*?\*\/)/,/^(?:\/\/.*)/,/^(?:\/[^ /]*?['"{}'][^ ]*?\/)/,/^(?:"(\\\\|\\"|[^"])*")/,/^(?:'(\\\\|\\'|[^'])*')/,/^(?:[/"'][^{}/"']+)/,/^(?:[^{}/"']+)/,/^(?:\{)/,/^(?:\})/,/^(?:(.|\n|\r)+)/],
 conditions: {"bnf":{"rules":[0,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33],"inclusive":true},"ebnf":{"rules":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33],"inclusive":true},"action":{"rules":[33,34,35,36,37,38,39,40,41,42],"inclusive":false},"code":{"rules":[33,43],"inclusive":false},"INITIAL":{"rules":[6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33],"inclusive":true}}
 };
 return lexer;
@@ -3643,7 +3942,7 @@ return new Parser;
 })();
 
 
-if (typeof _dereq_ !== 'undefined' && typeof exports !== 'undefined') {
+if (typeof require !== 'undefined' && typeof exports !== 'undefined') {
 exports.parser = bnf;
 exports.Parser = bnf.Parser;
 exports.parse = function () { return bnf.parse.apply(bnf, arguments); };
@@ -3652,15 +3951,15 @@ exports.main = function commonjsMain(args) {
         console.log('Usage: '+args[0]+' FILE');
         process.exit(1);
     }
-    var source = _dereq_('fs').readFileSync(_dereq_('path').normalize(args[1]), "utf8");
+    var source = require('fs').readFileSync(require('path').normalize(args[1]), "utf8");
     return exports.parser.parse(source);
 };
-if (typeof module !== 'undefined' && _dereq_.main === module) {
+if (typeof module !== 'undefined' && require.main === module) {
   exports.main(process.argv.slice(1));
 }
 }
-}).call(this,_dereq_('_process'))
-},{"./ebnf-transform":6,"_process":33,"fs":31,"path":32}],8:[function(_dereq_,module,exports){
+}).call(this,require('_process'))
+},{"./ebnf-transform":10,"_process":3,"fs":1,"path":2}],12:[function(require,module,exports){
 (function (process){
 /* parser generated by jison 0.4.11 */
 /*
@@ -4275,7 +4574,7 @@ return new Parser;
 })();
 
 
-if (typeof _dereq_ !== 'undefined' && typeof exports !== 'undefined') {
+if (typeof require !== 'undefined' && typeof exports !== 'undefined') {
 exports.parser = ebnf;
 exports.Parser = ebnf.Parser;
 exports.parse = function () { return ebnf.parse.apply(ebnf, arguments); };
@@ -4284,15 +4583,15 @@ exports.main = function commonjsMain(args) {
         console.log('Usage: '+args[0]+' FILE');
         process.exit(1);
     }
-    var source = _dereq_('fs').readFileSync(_dereq_('path').normalize(args[1]), "utf8");
+    var source = require('fs').readFileSync(require('path').normalize(args[1]), "utf8");
     return exports.parser.parse(source);
 };
-if (typeof module !== 'undefined' && _dereq_.main === module) {
+if (typeof module !== 'undefined' && require.main === module) {
   exports.main(process.argv.slice(1));
 }
 }
-}).call(this,_dereq_('_process'))
-},{"_process":33,"fs":31,"path":32}],9:[function(_dereq_,module,exports){
+}).call(this,require('_process'))
+},{"_process":3,"fs":1,"path":2}],13:[function(require,module,exports){
 (function (global){
 /*
   Copyright (C) 2012-2013 Yusuke Suzuki <utatane.tea@gmail.com>
@@ -4357,8 +4656,8 @@ if (typeof module !== 'undefined' && _dereq_.main === module) {
         FORMAT_MINIFY,
         FORMAT_DEFAULTS;
 
-    estraverse = _dereq_('estraverse');
-    esutils = _dereq_('esutils');
+    estraverse = require('estraverse');
+    esutils = require('esutils');
 
     Syntax = {
         AssignmentExpression: 'AssignmentExpression',
@@ -6462,7 +6761,7 @@ if (typeof module !== 'undefined' && _dereq_.main === module) {
             if (!exports.browser) {
                 // We assume environment is node.js
                 // And prevent from including source-map by browserify
-                SourceNode = _dereq_('source-map').SourceNode;
+                SourceNode = require('source-map').SourceNode;
             } else {
                 SourceNode = global.sourceMap.SourceNode;
             }
@@ -6568,7 +6867,7 @@ if (typeof module !== 'undefined' && _dereq_.main === module) {
 
     FORMAT_DEFAULTS = getDefaultOptions().format;
 
-    exports.version = _dereq_('./package.json').version;
+    exports.version = require('./package.json').version;
     exports.generate = generate;
     exports.attachComments = estraverse.attachComments;
     exports.Precedence = updateDeeply({}, Precedence);
@@ -6579,7 +6878,7 @@ if (typeof module !== 'undefined' && _dereq_.main === module) {
 /* vim: set sw=4 ts=4 et tw=80 : */
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./package.json":25,"estraverse":10,"esutils":13,"source-map":14}],10:[function(_dereq_,module,exports){
+},{"./package.json":29,"estraverse":14,"esutils":17,"source-map":18}],14:[function(require,module,exports){
 /*
   Copyright (C) 2012-2013 Yusuke Suzuki <utatane.tea@gmail.com>
   Copyright (C) 2012 Ariya Hidayat <ariya.hidayat@gmail.com>
@@ -7270,7 +7569,7 @@ if (typeof module !== 'undefined' && _dereq_.main === module) {
 }));
 /* vim: set sw=4 ts=4 et tw=80 : */
 
-},{}],11:[function(_dereq_,module,exports){
+},{}],15:[function(require,module,exports){
 /*
   Copyright (C) 2013 Yusuke Suzuki <utatane.tea@gmail.com>
 
@@ -7362,7 +7661,7 @@ if (typeof module !== 'undefined' && _dereq_.main === module) {
 }());
 /* vim: set sw=4 ts=4 et tw=80 : */
 
-},{}],12:[function(_dereq_,module,exports){
+},{}],16:[function(require,module,exports){
 /*
   Copyright (C) 2013 Yusuke Suzuki <utatane.tea@gmail.com>
 
@@ -7390,7 +7689,7 @@ if (typeof module !== 'undefined' && _dereq_.main === module) {
 (function () {
     'use strict';
 
-    var code = _dereq_('./code');
+    var code = require('./code');
 
     function isStrictModeReservedWordES6(id) {
         switch (id) {
@@ -7481,7 +7780,7 @@ if (typeof module !== 'undefined' && _dereq_.main === module) {
 }());
 /* vim: set sw=4 ts=4 et tw=80 : */
 
-},{"./code":11}],13:[function(_dereq_,module,exports){
+},{"./code":15}],17:[function(require,module,exports){
 /*
   Copyright (C) 2013 Yusuke Suzuki <utatane.tea@gmail.com>
 
@@ -7510,22 +7809,22 @@ if (typeof module !== 'undefined' && _dereq_.main === module) {
 (function () {
     'use strict';
 
-    exports.code = _dereq_('./code');
-    exports.keyword = _dereq_('./keyword');
+    exports.code = require('./code');
+    exports.keyword = require('./keyword');
 }());
 /* vim: set sw=4 ts=4 et tw=80 : */
 
-},{"./code":11,"./keyword":12}],14:[function(_dereq_,module,exports){
+},{"./code":15,"./keyword":16}],18:[function(require,module,exports){
 /*
  * Copyright 2009-2011 Mozilla Foundation and contributors
  * Licensed under the New BSD license. See LICENSE.txt or:
  * http://opensource.org/licenses/BSD-3-Clause
  */
-exports.SourceMapGenerator = _dereq_('./source-map/source-map-generator').SourceMapGenerator;
-exports.SourceMapConsumer = _dereq_('./source-map/source-map-consumer').SourceMapConsumer;
-exports.SourceNode = _dereq_('./source-map/source-node').SourceNode;
+exports.SourceMapGenerator = require('./source-map/source-map-generator').SourceMapGenerator;
+exports.SourceMapConsumer = require('./source-map/source-map-consumer').SourceMapConsumer;
+exports.SourceNode = require('./source-map/source-node').SourceNode;
 
-},{"./source-map/source-map-consumer":20,"./source-map/source-map-generator":21,"./source-map/source-node":22}],15:[function(_dereq_,module,exports){
+},{"./source-map/source-map-consumer":24,"./source-map/source-map-generator":25,"./source-map/source-node":26}],19:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -7533,11 +7832,11 @@ exports.SourceNode = _dereq_('./source-map/source-node').SourceNode;
  * http://opensource.org/licenses/BSD-3-Clause
  */
 if (typeof define !== 'function') {
-    var define = _dereq_('amdefine')(module, _dereq_);
+    var define = require('amdefine')(module, require);
 }
-define(function (_dereq_, exports, module) {
+define(function (require, exports, module) {
 
-  var util = _dereq_('./util');
+  var util = require('./util');
 
   /**
    * A data structure which is a combination of an array and a set. Adding a new
@@ -7624,7 +7923,7 @@ define(function (_dereq_, exports, module) {
 
 });
 
-},{"./util":23,"amdefine":24}],16:[function(_dereq_,module,exports){
+},{"./util":27,"amdefine":28}],20:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -7662,11 +7961,11 @@ define(function (_dereq_, exports, module) {
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 if (typeof define !== 'function') {
-    var define = _dereq_('amdefine')(module, _dereq_);
+    var define = require('amdefine')(module, require);
 }
-define(function (_dereq_, exports, module) {
+define(function (require, exports, module) {
 
-  var base64 = _dereq_('./base64');
+  var base64 = require('./base64');
 
   // A single base 64 digit can contain 6 bits of data. For the base 64 variable
   // length quantities we use in the source map spec, the first bit is the sign,
@@ -7768,7 +8067,7 @@ define(function (_dereq_, exports, module) {
 
 });
 
-},{"./base64":17,"amdefine":24}],17:[function(_dereq_,module,exports){
+},{"./base64":21,"amdefine":28}],21:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -7776,9 +8075,9 @@ define(function (_dereq_, exports, module) {
  * http://opensource.org/licenses/BSD-3-Clause
  */
 if (typeof define !== 'function') {
-    var define = _dereq_('amdefine')(module, _dereq_);
+    var define = require('amdefine')(module, require);
 }
-define(function (_dereq_, exports, module) {
+define(function (require, exports, module) {
 
   var charToIntMap = {};
   var intToCharMap = {};
@@ -7812,7 +8111,7 @@ define(function (_dereq_, exports, module) {
 
 });
 
-},{"amdefine":24}],18:[function(_dereq_,module,exports){
+},{"amdefine":28}],22:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -7820,9 +8119,9 @@ define(function (_dereq_, exports, module) {
  * http://opensource.org/licenses/BSD-3-Clause
  */
 if (typeof define !== 'function') {
-    var define = _dereq_('amdefine')(module, _dereq_);
+    var define = require('amdefine')(module, require);
 }
-define(function (_dereq_, exports, module) {
+define(function (require, exports, module) {
 
   /**
    * Recursive implementation of binary search.
@@ -7894,7 +8193,7 @@ define(function (_dereq_, exports, module) {
 
 });
 
-},{"amdefine":24}],19:[function(_dereq_,module,exports){
+},{"amdefine":28}],23:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2014 Mozilla Foundation and contributors
@@ -7902,11 +8201,11 @@ define(function (_dereq_, exports, module) {
  * http://opensource.org/licenses/BSD-3-Clause
  */
 if (typeof define !== 'function') {
-    var define = _dereq_('amdefine')(module, _dereq_);
+    var define = require('amdefine')(module, require);
 }
-define(function (_dereq_, exports, module) {
+define(function (require, exports, module) {
 
-  var util = _dereq_('./util');
+  var util = require('./util');
 
   /**
    * Determine whether mappingB is after mappingA with respect to generated
@@ -7982,7 +8281,7 @@ define(function (_dereq_, exports, module) {
 
 });
 
-},{"./util":23,"amdefine":24}],20:[function(_dereq_,module,exports){
+},{"./util":27,"amdefine":28}],24:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -7990,14 +8289,14 @@ define(function (_dereq_, exports, module) {
  * http://opensource.org/licenses/BSD-3-Clause
  */
 if (typeof define !== 'function') {
-    var define = _dereq_('amdefine')(module, _dereq_);
+    var define = require('amdefine')(module, require);
 }
-define(function (_dereq_, exports, module) {
+define(function (require, exports, module) {
 
-  var util = _dereq_('./util');
-  var binarySearch = _dereq_('./binary-search');
-  var ArraySet = _dereq_('./array-set').ArraySet;
-  var base64VLQ = _dereq_('./base64-vlq');
+  var util = require('./util');
+  var binarySearch = require('./binary-search');
+  var ArraySet = require('./array-set').ArraySet;
+  var base64VLQ = require('./base64-vlq');
 
   /**
    * A SourceMapConsumer instance represents a parsed source map which we can
@@ -8559,7 +8858,7 @@ define(function (_dereq_, exports, module) {
 
 });
 
-},{"./array-set":15,"./base64-vlq":16,"./binary-search":18,"./util":23,"amdefine":24}],21:[function(_dereq_,module,exports){
+},{"./array-set":19,"./base64-vlq":20,"./binary-search":22,"./util":27,"amdefine":28}],25:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -8567,14 +8866,14 @@ define(function (_dereq_, exports, module) {
  * http://opensource.org/licenses/BSD-3-Clause
  */
 if (typeof define !== 'function') {
-    var define = _dereq_('amdefine')(module, _dereq_);
+    var define = require('amdefine')(module, require);
 }
-define(function (_dereq_, exports, module) {
+define(function (require, exports, module) {
 
-  var base64VLQ = _dereq_('./base64-vlq');
-  var util = _dereq_('./util');
-  var ArraySet = _dereq_('./array-set').ArraySet;
-  var MappingList = _dereq_('./mapping-list').MappingList;
+  var base64VLQ = require('./base64-vlq');
+  var util = require('./util');
+  var ArraySet = require('./array-set').ArraySet;
+  var MappingList = require('./mapping-list').MappingList;
 
   /**
    * An instance of the SourceMapGenerator represents a source map which is
@@ -8961,7 +9260,7 @@ define(function (_dereq_, exports, module) {
 
 });
 
-},{"./array-set":15,"./base64-vlq":16,"./mapping-list":19,"./util":23,"amdefine":24}],22:[function(_dereq_,module,exports){
+},{"./array-set":19,"./base64-vlq":20,"./mapping-list":23,"./util":27,"amdefine":28}],26:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -8969,12 +9268,12 @@ define(function (_dereq_, exports, module) {
  * http://opensource.org/licenses/BSD-3-Clause
  */
 if (typeof define !== 'function') {
-    var define = _dereq_('amdefine')(module, _dereq_);
+    var define = require('amdefine')(module, require);
 }
-define(function (_dereq_, exports, module) {
+define(function (require, exports, module) {
 
-  var SourceMapGenerator = _dereq_('./source-map-generator').SourceMapGenerator;
-  var util = _dereq_('./util');
+  var SourceMapGenerator = require('./source-map-generator').SourceMapGenerator;
+  var util = require('./util');
 
   // Matches a Windows-style `\r\n` newline or a `\n` newline used by all other
   // operating systems these days (capturing the result).
@@ -9377,7 +9676,7 @@ define(function (_dereq_, exports, module) {
 
 });
 
-},{"./source-map-generator":21,"./util":23,"amdefine":24}],23:[function(_dereq_,module,exports){
+},{"./source-map-generator":25,"./util":27,"amdefine":28}],27:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -9385,9 +9684,9 @@ define(function (_dereq_, exports, module) {
  * http://opensource.org/licenses/BSD-3-Clause
  */
 if (typeof define !== 'function') {
-    var define = _dereq_('amdefine')(module, _dereq_);
+    var define = require('amdefine')(module, require);
 }
-define(function (_dereq_, exports, module) {
+define(function (require, exports, module) {
 
   /**
    * This is a helper function for getting values from parameter/options
@@ -9698,7 +9997,7 @@ define(function (_dereq_, exports, module) {
 
 });
 
-},{"amdefine":24}],24:[function(_dereq_,module,exports){
+},{"amdefine":28}],28:[function(require,module,exports){
 (function (process,__filename){
 /** vim: et:ts=4:sw=4:sts=4
  * @license amdefine 0.1.0 Copyright (c) 2011, The Dojo Foundation All Rights Reserved.
@@ -9725,7 +10024,7 @@ function amdefine(module, requireFn) {
     var defineCache = {},
         loaderCache = {},
         alreadyCalled = false,
-        path = _dereq_('path'),
+        path = require('path'),
         makeRequire, stringRequire;
 
     /**
@@ -10000,8 +10299,8 @@ function amdefine(module, requireFn) {
 
 module.exports = amdefine;
 
-}).call(this,_dereq_('_process'),"/node_modules/escodegen/node_modules/source-map/node_modules/amdefine/amdefine.js")
-},{"_process":33,"path":32}],25:[function(_dereq_,module,exports){
+}).call(this,require('_process'),"/node_modules/jison/node_modules/escodegen/node_modules/source-map/node_modules/amdefine/amdefine.js")
+},{"_process":3,"path":2}],29:[function(require,module,exports){
 module.exports={
   "name": "escodegen",
   "description": "ECMAScript code generator",
@@ -10069,7 +10368,7 @@ module.exports={
     "shasum": "f024016f5a88e046fd12005055e939802e6c5f23",
     "tarball": "http://registry.npmjs.org/escodegen/-/escodegen-1.3.3.tgz"
   },
-  "_from": "escodegen@1.3.x",
+  "_from": "escodegen@>=1.3.0 <1.4.0",
   "_npmVersion": "1.4.3",
   "_npmUser": {
     "name": "constellation",
@@ -10081,7 +10380,7 @@ module.exports={
   "readme": "ERROR: No README data found!"
 }
 
-},{}],26:[function(_dereq_,module,exports){
+},{}],30:[function(require,module,exports){
 /*
   Copyright (C) 2013 Ariya Hidayat <ariya.hidayat@gmail.com>
   Copyright (C) 2013 Thaddee Tyl <thaddee.tyl@gmail.com>
@@ -13913,7 +14212,7 @@ parseStatement: true, parseSourceElement: true */
 }));
 /* vim: set sw=4 ts=4 et tw=80 : */
 
-},{}],27:[function(_dereq_,module,exports){
+},{}],31:[function(require,module,exports){
 module.exports={
   "author": {
     "name": "Zach Carter",
@@ -13966,7 +14265,7 @@ module.exports={
     "shasum": "81ca28d84f84499dfa8c594dcde3d8a3f26ec7a5",
     "tarball": "http://registry.npmjs.org/jison-lex/-/jison-lex-0.3.4.tgz"
   },
-  "_from": "jison-lex@0.3.x",
+  "_from": "jison-lex@>=0.3.0 <0.4.0",
   "_npmVersion": "1.4.3",
   "_npmUser": {
     "name": "zaach",
@@ -13979,17 +14278,18 @@ module.exports={
     }
   ],
   "_shasum": "81ca28d84f84499dfa8c594dcde3d8a3f26ec7a5",
-  "_resolved": "https://registry.npmjs.org/jison-lex/-/jison-lex-0.3.4.tgz"
+  "_resolved": "https://registry.npmjs.org/jison-lex/-/jison-lex-0.3.4.tgz",
+  "readme": "ERROR: No README data found!"
 }
 
-},{}],28:[function(_dereq_,module,exports){
+},{}],32:[function(require,module,exports){
 // Basic Lexer implemented using JavaScript regular expressions
 // MIT Licensed
 
 "use strict";
 
-var lexParser = _dereq_('lex-parser');
-var version = _dereq_('./package.json').version;
+var lexParser = require('lex-parser');
+var version = require('./package.json').version;
 
 // expand macros and convert matchers to RegExp's
 function prepareRules(rules, macros, actions, tokens, startConditions, caseless) {
@@ -14587,7 +14887,7 @@ RegExpLexer.generate = generate;
 module.exports = RegExpLexer;
 
 
-},{"./package.json":27,"lex-parser":29}],29:[function(_dereq_,module,exports){
+},{"./package.json":31,"lex-parser":33}],33:[function(require,module,exports){
 (function (process){
 /* parser generated by jison 0.4.6 */
 /*
@@ -14665,8 +14965,8 @@ module.exports = RegExpLexer;
 var lex = (function(){
 var parser = {trace: function trace() { },
 yy: {},
-symbols_: {"error":2,"lex":3,"definitions":4,"%":5,"rules":6,"epilogue":7,"EOF":8,"CODE":9,"definition":10,"ACTION":11,"NAME":12,"regex":13,"START_INC":14,"names_inclusive":15,"START_EXC":16,"names_exclusive":17,"START_COND":18,"rule":19,"start_conditions":20,"action":21,"{":22,"action_body":23,"}":24,"action_comments_body":25,"ACTION_BODY":26,"<":27,"name_list":28,">":29,"*":30,",":31,"regex_list":32,"|":33,"regex_concat":34,"regex_base":35,"(":36,")":37,"SPECIAL_GROUP":38,"+":39,"?":40,"/":41,"/!":42,"name_expansion":43,"range_regex":44,"any_group_regex":45,".":46,"^":47,"$":48,"string":49,"escape_char":50,"NAME_BRACE":51,"ANY_GROUP_REGEX":52,"ESCAPE_CHAR":53,"RANGE_REGEX":54,"STRING_LIT":55,"CHARACTER_LIT":56,"$accept":0,"$end":1},
-terminals_: {2:"error",5:"%",8:"EOF",9:"CODE",11:"ACTION",12:"NAME",14:"START_INC",16:"START_EXC",18:"START_COND",22:"{",24:"}",26:"ACTION_BODY",27:"<",29:">",30:"*",31:",",33:"|",36:"(",37:")",38:"SPECIAL_GROUP",39:"+",40:"?",41:"/",42:"/!",46:".",47:"^",48:"$",51:"NAME_BRACE",52:"ANY_GROUP_REGEX",53:"ESCAPE_CHAR",54:"RANGE_REGEX",55:"STRING_LIT",56:"CHARACTER_LIT"},
+symbols_: {"error":2,"lex":3,"definitions":4,"%%":5,"rules":6,"epilogue":7,"EOF":8,"CODE":9,"definition":10,"ACTION":11,"NAME":12,"regex":13,"START_INC":14,"names_inclusive":15,"START_EXC":16,"names_exclusive":17,"START_COND":18,"rule":19,"start_conditions":20,"action":21,"{":22,"action_body":23,"}":24,"action_comments_body":25,"ACTION_BODY":26,"<":27,"name_list":28,">":29,"*":30,",":31,"regex_list":32,"|":33,"regex_concat":34,"regex_base":35,"(":36,")":37,"SPECIAL_GROUP":38,"+":39,"?":40,"/":41,"/!":42,"name_expansion":43,"range_regex":44,"any_group_regex":45,".":46,"^":47,"$":48,"string":49,"escape_char":50,"NAME_BRACE":51,"ANY_GROUP_REGEX":52,"ESCAPE_CHAR":53,"RANGE_REGEX":54,"STRING_LIT":55,"CHARACTER_LIT":56,"$accept":0,"$end":1},
+terminals_: {2:"error",5:"%%",8:"EOF",9:"CODE",11:"ACTION",12:"NAME",14:"START_INC",16:"START_EXC",18:"START_COND",22:"{",24:"}",26:"ACTION_BODY",27:"<",29:">",30:"*",31:",",33:"|",36:"(",37:")",38:"SPECIAL_GROUP",39:"+",40:"?",41:"/",42:"/!",46:".",47:"^",48:"$",51:"NAME_BRACE",52:"ANY_GROUP_REGEX",53:"ESCAPE_CHAR",54:"RANGE_REGEX",55:"STRING_LIT",56:"CHARACTER_LIT"},
 productions_: [0,[3,4],[7,1],[7,2],[7,3],[4,2],[4,2],[4,0],[10,2],[10,2],[10,2],[15,1],[15,2],[17,1],[17,2],[6,2],[6,1],[19,3],[21,3],[21,1],[23,0],[23,1],[23,5],[23,4],[25,1],[25,2],[20,3],[20,3],[20,0],[28,1],[28,3],[13,1],[32,3],[32,2],[32,1],[32,0],[34,2],[34,1],[35,3],[35,3],[35,2],[35,2],[35,2],[35,2],[35,2],[35,1],[35,2],[35,1],[35,1],[35,1],[35,1],[35,1],[35,1],[43,1],[45,1],[50,1],[44,1],[49,1],[49,1]],
 performAction: function anonymous(yytext, yyleng, yylineno, yy, yystate /* action[1] */, $$ /* vstack */, _$ /* lstack */) {
 /* this == yyval */
@@ -15410,7 +15710,7 @@ case 68:return 9;
 break;
 }
 },
-rules: [/^(?:\/\*(.|\n|\r)*?\*\/)/,/^(?:\/\/.*)/,/^(?:\/[^ /]*?['"{}'][^ ]*?\/)/,/^(?:"(\\\\|\\"|[^"])*")/,/^(?:'(\\\\|\\'|[^'])*')/,/^(?:[/"'][^{}/"']+)/,/^(?:[^{}/"']+)/,/^(?:\{)/,/^(?:\})/,/^(?:([a-zA-Z_][a-zA-Z0-9_-]*))/,/^(?:>)/,/^(?:,)/,/^(?:\*)/,/^(?:(\r\n|\n|\r)+)/,/^(?:\s+(\r\n|\n|\r)+)/,/^(?:\s+)/,/^(?:%)/,/^(?:[a-zA-Z0-9_]+)/,/^(?:([a-zA-Z_][a-zA-Z0-9_-]*))/,/^(?:(\r\n|\n|\r)+)/,/^(?:\s+(\r\n|\n|\r)+)/,/^(?:\s+)/,/^(?:([a-zA-Z_][a-zA-Z0-9_-]*))/,/^(?:(\r\n|\n|\r)+)/,/^(?:\s+(\r\n|\n|\r)+)/,/^(?:\s+)/,/^(?:.*(\r\n|\n|\r)+)/,/^(?:\{)/,/^(?:%\{(.|(\r\n|\n|\r))*?%\})/,/^(?:%\{(.|(\r\n|\n|\r))*?%\})/,/^(?:.+)/,/^(?:\/\*(.|\n|\r)*?\*\/)/,/^(?:\/\/.*)/,/^(?:(\r\n|\n|\r)+)/,/^(?:\s+)/,/^(?:([a-zA-Z_][a-zA-Z0-9_-]*))/,/^(?:"(\\\\|\\"|[^"])*")/,/^(?:'(\\\\|\\'|[^'])*')/,/^(?:\|)/,/^(?:\[(\\\\|\\\]|[^\]])*\])/,/^(?:\(\?:)/,/^(?:\(\?=)/,/^(?:\(\?!)/,/^(?:\()/,/^(?:\))/,/^(?:\+)/,/^(?:\*)/,/^(?:\?)/,/^(?:\^)/,/^(?:,)/,/^(?:<<EOF>>)/,/^(?:<)/,/^(?:\/!)/,/^(?:\/)/,/^(?:\\([0-7]{1,3}|[rfntvsSbBwWdD\\*+()${}|[\]\/.^?]|c[A-Z]|x[0-9A-F]{2}|u[a-fA-F0-9]{4}))/,/^(?:\\.)/,/^(?:\$)/,/^(?:\.)/,/^(?:%options\b)/,/^(?:%s\b)/,/^(?:%x\b)/,/^(?:%)/,/^(?:\{\d+(,\s?\d+|,)?\})/,/^(?:\{([a-zA-Z_][a-zA-Z0-9_-]*)\})/,/^(?:\{)/,/^(?:\})/,/^(?:.)/,/^(?:$)/,/^(?:(.|(\r\n|\n|\r))+)/],
+rules: [/^(?:\/\*(.|\n|\r)*?\*\/)/,/^(?:\/\/.*)/,/^(?:\/[^ /]*?['"{}'][^ ]*?\/)/,/^(?:"(\\\\|\\"|[^"])*")/,/^(?:'(\\\\|\\'|[^'])*')/,/^(?:[/"'][^{}/"']+)/,/^(?:[^{}/"']+)/,/^(?:\{)/,/^(?:\})/,/^(?:([a-zA-Z_][a-zA-Z0-9_-]*))/,/^(?:>)/,/^(?:,)/,/^(?:\*)/,/^(?:(\r\n|\n|\r)+)/,/^(?:\s+(\r\n|\n|\r)+)/,/^(?:\s+)/,/^(?:%%)/,/^(?:[a-zA-Z0-9_]+)/,/^(?:([a-zA-Z_][a-zA-Z0-9_-]*))/,/^(?:(\r\n|\n|\r)+)/,/^(?:\s+(\r\n|\n|\r)+)/,/^(?:\s+)/,/^(?:([a-zA-Z_][a-zA-Z0-9_-]*))/,/^(?:(\r\n|\n|\r)+)/,/^(?:\s+(\r\n|\n|\r)+)/,/^(?:\s+)/,/^(?:.*(\r\n|\n|\r)+)/,/^(?:\{)/,/^(?:%\{(.|(\r\n|\n|\r))*?%\})/,/^(?:%\{(.|(\r\n|\n|\r))*?%\})/,/^(?:.+)/,/^(?:\/\*(.|\n|\r)*?\*\/)/,/^(?:\/\/.*)/,/^(?:(\r\n|\n|\r)+)/,/^(?:\s+)/,/^(?:([a-zA-Z_][a-zA-Z0-9_-]*))/,/^(?:"(\\\\|\\"|[^"])*")/,/^(?:'(\\\\|\\'|[^'])*')/,/^(?:\|)/,/^(?:\[(\\\\|\\\]|[^\]])*\])/,/^(?:\(\?:)/,/^(?:\(\?=)/,/^(?:\(\?!)/,/^(?:\()/,/^(?:\))/,/^(?:\+)/,/^(?:\*)/,/^(?:\?)/,/^(?:\^)/,/^(?:,)/,/^(?:<<EOF>>)/,/^(?:<)/,/^(?:\/!)/,/^(?:\/)/,/^(?:\\([0-7]{1,3}|[rfntvsSbBwWdD\\*+()${}|[\]\/.^?]|c[A-Z]|x[0-9A-F]{2}|u[a-fA-F0-9]{4}))/,/^(?:\\.)/,/^(?:\$)/,/^(?:\.)/,/^(?:%options\b)/,/^(?:%s\b)/,/^(?:%x\b)/,/^(?:%%)/,/^(?:\{\d+(,\s?\d+|,)?\})/,/^(?:\{([a-zA-Z_][a-zA-Z0-9_-]*)\})/,/^(?:\{)/,/^(?:\})/,/^(?:.)/,/^(?:$)/,/^(?:(.|(\r\n|\n|\r))+)/],
 conditions: {"code":{"rules":[67,68],"inclusive":false},"start_condition":{"rules":[22,23,24,25,67],"inclusive":false},"options":{"rules":[18,19,20,21,67],"inclusive":false},"conditions":{"rules":[9,10,11,12,67],"inclusive":false},"action":{"rules":[0,1,2,3,4,5,6,7,8,67],"inclusive":false},"indented":{"rules":[27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67],"inclusive":true},"trail":{"rules":[26,29,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67],"inclusive":true},"rules":{"rules":[13,14,15,16,17,29,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67],"inclusive":true},"INITIAL":{"rules":[29,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67],"inclusive":true}}
 };
 return lexer;
@@ -15424,7 +15724,7 @@ return new Parser;
 })();
 
 
-if (typeof _dereq_ !== 'undefined' && typeof exports !== 'undefined') {
+if (typeof require !== 'undefined' && typeof exports !== 'undefined') {
 exports.parser = lex;
 exports.Parser = lex.Parser;
 exports.parse = function () { return lex.parse.apply(lex, arguments); };
@@ -15433,17 +15733,21 @@ exports.main = function commonjsMain(args) {
         console.log('Usage: '+args[0]+' FILE');
         process.exit(1);
     }
-    var source = _dereq_('fs').readFileSync(_dereq_('path').normalize(args[1]), "utf8");
+    var source = require('fs').readFileSync(require('path').normalize(args[1]), "utf8");
     return exports.parser.parse(source);
 };
-if (typeof module !== 'undefined' && _dereq_.main === module) {
+if (typeof module !== 'undefined' && require.main === module) {
   exports.main(process.argv.slice(1));
 }
 }
-}).call(this,_dereq_('_process'))
-},{"_process":33,"fs":31,"path":32}],30:[function(_dereq_,module,exports){
+}).call(this,require('_process'))
+},{"_process":3,"fs":1,"path":2}],34:[function(require,module,exports){
 module.exports={
-  "author": "Zach Carter <zach@carter.name> (http://zaa.ch)",
+  "author": {
+    "name": "Zach Carter",
+    "email": "zach@carter.name",
+    "url": "http://zaa.ch"
+  },
   "name": "jison",
   "description": "A parser generator with Bison's API",
   "version": "0.4.15",
@@ -15464,11 +15768,13 @@ module.exports={
     "url": "git://github.com/zaach/jison.git"
   },
   "bugs": {
-    "email": "jison@librelist.com",
-    "url": "http://github.com/zaach/jison/issues"
+    "url": "http://github.com/zaach/jison/issues",
+    "email": "jison@librelist.com"
   },
   "main": "lib/jison",
-  "bin": "lib/cli.js",
+  "bin": {
+    "jison": "lib/cli.js"
+  },
   "engines": {
     "node": ">=0.4"
   },
@@ -15491,303 +15797,14 @@ module.exports={
   "scripts": {
     "test": "node tests/all-tests.js"
   },
-  "homepage": "http://jison.org"
+  "homepage": "http://jison.org",
+  "gitHead": "6cbf87fbb8fcb6c3c059c78abd438916bc17d9db",
+  "readme": "Jison\n=====\n* [issues](http://github.com/zaach/jison/issues)\n* [discuss](mailto:jison@librelist.com)\n\n[![build status](https://secure.travis-ci.org/zaach/jison.png)](http://travis-ci.org/zaach/jison)\n\nAn API for creating parsers in JavaScript\n-----------------------------------------\n\nJison generates bottom-up parsers in JavaScript. Its API is similar to Bison's, hence the name. It supports many of Bison's major features, plus some of its own. If you are new to parser generators such as Bison, and Context-free Grammars in general, a [good introduction][1] is found in the Bison manual. If you already know Bison, Jison should be easy to pickup.\n\nBriefly, Jison takes a JSON encoded grammar or Bison style grammar and outputs a JavaScript file capable of parsing the language described by that grammar. You can then use the generated script to parse inputs and accept, reject, or perform actions based on the input.\n\nInstallation\n------------\nJison can be installed for [Node](http://nodejs.org) using [`npm`](http://github.com/isaacs/npm/)\n\nUsing npm:\n\n    npm install jison -g\n\nUsage from the command line\n-----------------------\n\nClone the github repository for examples:\n\n    git clone git://github.com/zaach/jison.git\n    cd jison/examples\n\nNow you're ready to generate some parsers:\n\n    jison calculator.jison\n\nThis will generate `calculator.js` in your current working directory. This file can be used to parse an input file, like so:\n\n    echo \"2^32 / 1024\" > testcalc\n    node calculator.js testcalc\n\nThis will print out `4194304`.\n\nFull cli option list:\n\n    Usage: jison [file] [lexfile] [options]\n\n    file        file containing a grammar\n    lexfile     file containing a lexical grammar\n\n    Options:\n       -j, --json                    force jison to expect a grammar in JSON format\n       -o FILE, --outfile FILE       Filename and base module name of the generated parser\n       -t, --debug                   Debug mode\n       -m TYPE, --module-type TYPE   The type of module to generate (commonjs, amd, js)\n       -p TYPE, --parser-type TYPE   The type of algorithm to use for the parser (lr0, slr, lalr, lr)\n       -V, --version                 print version and exit\n\n\nUsage from a CommonJS module\n--------------------------\n\nYou can generate parsers programatically from JavaScript as well. Assuming Jison is in your commonjs environment's load path:\n\n    // mygenerator.js\n    var Parser = require(\"jison\").Parser;\n    \n    // a grammar in JSON\n    var grammar = {\n        \"lex\": {\n            \"rules\": [\n               [\"\\\\s+\", \"/* skip whitespace */\"],\n               [\"[a-f0-9]+\", \"return 'HEX';\"]\n            ]\n        },\n    \n        \"bnf\": {\n            \"hex_strings\" :[ \"hex_strings HEX\",\n                             \"HEX\" ]\n        }\n    };\n    \n    // `grammar` can also be a string that uses jison's grammar format\n    var parser = new Parser(grammar);\n    \n    // generate source, ready to be written to disk\n    var parserSource = parser.generate();\n    \n    // you can also use the parser directly from memory\n    \n    // returns true\n    parser.parse(\"adfe34bc e82a\");\n    \n    // throws lexical error\n    parser.parse(\"adfe34bc zxg\");\n\n\nMore Documentation\n------------------\nFor more information on creating grammars and using the generated parsers, read the [documentation](http://jison.org/docs).\n\nHow to contribute\n-----------------\nFork, make your changes, run tests and/or add tests then send a pull request.\n\nRun tests with:\n\n    make test\n\nProjects using Jison\n------------------\n\nView them on the [wiki](https://github.com/zaach/jison/wiki/ProjectsUsingJison), or add your own.\n\n\nContributors\n------------\n[Githubbers](http://github.com/zaach/jison/contributors)\n\nSpecial thanks to Jarred Ligatti, Manuel E. Bermúdez \n\nLicense\n-------\n\n> Copyright (c) 2009-2014 Zachary Carter\n> \n>  Permission is hereby granted, free of\n> charge, to any person  obtaining a\n> copy of this software and associated\n> documentation  files (the \"Software\"),\n> to deal in the Software without \n> restriction, including without\n> limitation the rights to use,  copy,\n> modify, merge, publish, distribute,\n> sublicense, and/or sell  copies of the\n> Software, and to permit persons to\n> whom the  Software is furnished to do\n> so, subject to the following \n> conditions:\n> \n>  The above copyright notice and this\n> permission notice shall be  included\n> in all copies or substantial portions\n> of the Software.\n> \n>  THE SOFTWARE IS PROVIDED \"AS IS\",\n> WITHOUT WARRANTY OF ANY KIND,  EXPRESS\n> OR IMPLIED, INCLUDING BUT NOT LIMITED\n> TO THE WARRANTIES  OF MERCHANTABILITY,\n> FITNESS FOR A PARTICULAR PURPOSE AND \n> NONINFRINGEMENT. IN NO EVENT SHALL THE\n> AUTHORS OR COPYRIGHT  HOLDERS BE\n> LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\n> LIABILITY,  WHETHER IN AN ACTION OF\n> CONTRACT, TORT OR OTHERWISE, ARISING \n> FROM, OUT OF OR IN CONNECTION WITH THE\n> SOFTWARE OR THE USE OR  OTHER DEALINGS\n> IN THE SOFTWARE.\n\n\n  [1]: http://dinosaur.compilertools.net/bison/bison_4.html\n\n",
+  "readmeFilename": "README.md",
+  "_id": "jison@0.4.15",
+  "_shasum": "91af6b0910c5fac9626914930479ad492de2a18e",
+  "_from": "../../../../var/folders/3x/d09_d8b15tn8yvg8_18pm8200000gn/T/npm-2140-c5a0f44e/git-cache-92db6931f92a/6cbf87fbb8fcb6c3c059c78abd438916bc17d9db",
+  "_resolved": "git+https://github.com/nolanlawson/jison#6cbf87fbb8fcb6c3c059c78abd438916bc17d9db"
 }
 
-},{}],31:[function(_dereq_,module,exports){
-
-},{}],32:[function(_dereq_,module,exports){
-(function (process){
-// Copyright Joyent, Inc. and other Node contributors.
-//
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the
-// "Software"), to deal in the Software without restriction, including
-// without limitation the rights to use, copy, modify, merge, publish,
-// distribute, sublicense, and/or sell copies of the Software, and to permit
-// persons to whom the Software is furnished to do so, subject to the
-// following conditions:
-//
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
-// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
-// USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-// resolves . and .. elements in a path array with directory names there
-// must be no slashes, empty elements, or device names (c:\) in the array
-// (so also no leading and trailing slashes - it does not distinguish
-// relative and absolute paths)
-function normalizeArray(parts, allowAboveRoot) {
-  // if the path tries to go above the root, `up` ends up > 0
-  var up = 0;
-  for (var i = parts.length - 1; i >= 0; i--) {
-    var last = parts[i];
-    if (last === '.') {
-      parts.splice(i, 1);
-    } else if (last === '..') {
-      parts.splice(i, 1);
-      up++;
-    } else if (up) {
-      parts.splice(i, 1);
-      up--;
-    }
-  }
-
-  // if the path is allowed to go above the root, restore leading ..s
-  if (allowAboveRoot) {
-    for (; up--; up) {
-      parts.unshift('..');
-    }
-  }
-
-  return parts;
-}
-
-// Split a filename into [root, dir, basename, ext], unix version
-// 'root' is just a slash, or nothing.
-var splitPathRe =
-    /^(\/?|)([\s\S]*?)((?:\.{1,2}|[^\/]+?|)(\.[^.\/]*|))(?:[\/]*)$/;
-var splitPath = function(filename) {
-  return splitPathRe.exec(filename).slice(1);
-};
-
-// path.resolve([from ...], to)
-// posix version
-exports.resolve = function() {
-  var resolvedPath = '',
-      resolvedAbsolute = false;
-
-  for (var i = arguments.length - 1; i >= -1 && !resolvedAbsolute; i--) {
-    var path = (i >= 0) ? arguments[i] : process.cwd();
-
-    // Skip empty and invalid entries
-    if (typeof path !== 'string') {
-      throw new TypeError('Arguments to path.resolve must be strings');
-    } else if (!path) {
-      continue;
-    }
-
-    resolvedPath = path + '/' + resolvedPath;
-    resolvedAbsolute = path.charAt(0) === '/';
-  }
-
-  // At this point the path should be resolved to a full absolute path, but
-  // handle relative paths to be safe (might happen when process.cwd() fails)
-
-  // Normalize the path
-  resolvedPath = normalizeArray(filter(resolvedPath.split('/'), function(p) {
-    return !!p;
-  }), !resolvedAbsolute).join('/');
-
-  return ((resolvedAbsolute ? '/' : '') + resolvedPath) || '.';
-};
-
-// path.normalize(path)
-// posix version
-exports.normalize = function(path) {
-  var isAbsolute = exports.isAbsolute(path),
-      trailingSlash = substr(path, -1) === '/';
-
-  // Normalize the path
-  path = normalizeArray(filter(path.split('/'), function(p) {
-    return !!p;
-  }), !isAbsolute).join('/');
-
-  if (!path && !isAbsolute) {
-    path = '.';
-  }
-  if (path && trailingSlash) {
-    path += '/';
-  }
-
-  return (isAbsolute ? '/' : '') + path;
-};
-
-// posix version
-exports.isAbsolute = function(path) {
-  return path.charAt(0) === '/';
-};
-
-// posix version
-exports.join = function() {
-  var paths = Array.prototype.slice.call(arguments, 0);
-  return exports.normalize(filter(paths, function(p, index) {
-    if (typeof p !== 'string') {
-      throw new TypeError('Arguments to path.join must be strings');
-    }
-    return p;
-  }).join('/'));
-};
-
-
-// path.relative(from, to)
-// posix version
-exports.relative = function(from, to) {
-  from = exports.resolve(from).substr(1);
-  to = exports.resolve(to).substr(1);
-
-  function trim(arr) {
-    var start = 0;
-    for (; start < arr.length; start++) {
-      if (arr[start] !== '') break;
-    }
-
-    var end = arr.length - 1;
-    for (; end >= 0; end--) {
-      if (arr[end] !== '') break;
-    }
-
-    if (start > end) return [];
-    return arr.slice(start, end - start + 1);
-  }
-
-  var fromParts = trim(from.split('/'));
-  var toParts = trim(to.split('/'));
-
-  var length = Math.min(fromParts.length, toParts.length);
-  var samePartsLength = length;
-  for (var i = 0; i < length; i++) {
-    if (fromParts[i] !== toParts[i]) {
-      samePartsLength = i;
-      break;
-    }
-  }
-
-  var outputParts = [];
-  for (var i = samePartsLength; i < fromParts.length; i++) {
-    outputParts.push('..');
-  }
-
-  outputParts = outputParts.concat(toParts.slice(samePartsLength));
-
-  return outputParts.join('/');
-};
-
-exports.sep = '/';
-exports.delimiter = ':';
-
-exports.dirname = function(path) {
-  var result = splitPath(path),
-      root = result[0],
-      dir = result[1];
-
-  if (!root && !dir) {
-    // No dirname whatsoever
-    return '.';
-  }
-
-  if (dir) {
-    // It has a dirname, strip trailing slash
-    dir = dir.substr(0, dir.length - 1);
-  }
-
-  return root + dir;
-};
-
-
-exports.basename = function(path, ext) {
-  var f = splitPath(path)[2];
-  // TODO: make this comparison case-insensitive on windows?
-  if (ext && f.substr(-1 * ext.length) === ext) {
-    f = f.substr(0, f.length - ext.length);
-  }
-  return f;
-};
-
-
-exports.extname = function(path) {
-  return splitPath(path)[3];
-};
-
-function filter (xs, f) {
-    if (xs.filter) return xs.filter(f);
-    var res = [];
-    for (var i = 0; i < xs.length; i++) {
-        if (f(xs[i], i, xs)) res.push(xs[i]);
-    }
-    return res;
-}
-
-// String.prototype.substr - negative index don't work in IE8
-var substr = 'ab'.substr(-1) === 'b'
-    ? function (str, start, len) { return str.substr(start, len) }
-    : function (str, start, len) {
-        if (start < 0) start = str.length + start;
-        return str.substr(start, len);
-    }
-;
-
-}).call(this,_dereq_('_process'))
-},{"_process":33}],33:[function(_dereq_,module,exports){
-// shim for using process in browser
-
-var process = module.exports = {};
-
-process.nextTick = (function () {
-    var canSetImmediate = typeof window !== 'undefined'
-    && window.setImmediate;
-    var canPost = typeof window !== 'undefined'
-    && window.postMessage && window.addEventListener
-    ;
-
-    if (canSetImmediate) {
-        return function (f) { return window.setImmediate(f) };
-    }
-
-    if (canPost) {
-        var queue = [];
-        window.addEventListener('message', function (ev) {
-            var source = ev.source;
-            if ((source === window || source === null) && ev.data === 'process-tick') {
-                ev.stopPropagation();
-                if (queue.length > 0) {
-                    var fn = queue.shift();
-                    fn();
-                }
-            }
-        }, true);
-
-        return function nextTick(fn) {
-            queue.push(fn);
-            window.postMessage('process-tick', '*');
-        };
-    }
-
-    return function nextTick(fn) {
-        setTimeout(fn, 0);
-    };
-})();
-
-process.title = 'browser';
-process.browser = true;
-process.env = {};
-process.argv = [];
-
-function noop() {}
-
-process.on = noop;
-process.addListener = noop;
-process.once = noop;
-process.off = noop;
-process.removeListener = noop;
-process.removeAllListeners = noop;
-process.emit = noop;
-
-process.binding = function (name) {
-    throw new Error('process.binding is not supported');
-}
-
-// TODO(shtylman)
-process.cwd = function () { return '/' };
-process.chdir = function (dir) {
-    throw new Error('process.chdir is not supported');
-};
-
-},{}]},{},[1])(1)
-});
+},{}]},{},[4]);

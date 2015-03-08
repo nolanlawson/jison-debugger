@@ -53,5 +53,9 @@
   },
   "browserify-shim": {
     "jquery": "$"
+  },
+  "scripts": {
+    "postinstall": "npm run build-jison",
+    "build-jison": "./bin/build-jison.sh"
   }
 }

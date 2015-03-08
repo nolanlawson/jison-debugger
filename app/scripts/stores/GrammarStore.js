@@ -7,7 +7,8 @@ var ActionTypes = require('../actions/ActionTypes');
 
 var CHANGE_EVENT = 'change';
 
-var activeGrammar = null;
+var activeCompiledGrammar = null;
+var activeCompiledError = null;
 
 var GrammarStore = assign({}, EventEmitter.prototype, {
   emitChange() {
@@ -19,8 +20,11 @@ var GrammarStore = assign({}, EventEmitter.prototype, {
   removeChangeListener(callback) {
     this.removeListener(CHANGE_EVENT, callback);
   },
-  getActiveGrammar() {
-    return activeGrammar;
+  getActiveCompiledGrammar() {
+    return activeCompiledGrammar;
+  },
+  getActiveCompiledError() {
+    return activeCompiledError;
   }
 });
 
@@ -28,8 +32,16 @@ GrammarStore.dispatchToken = AppDispatcher.register(function (payload) {
   var action = payload.action;
 
   switch (action.type) {
-    case ActionTypes.EMAIL_CREATED:
-      activeGrammar = action.compiledGrammar;
+    case ActionTypes.GRAMMAR_COMPILED:
+      console.log('grammar compiled');
+      activeCompiledGrammar = action.compiledGrammar;
+      activeCompiledError = null;
+      GrammarStore.emitChange();
+      break;
+    case ActionTypes.GRAMMAR_ERRORED:
+      console.log('grammar errored');
+      activeCompiledGrammar = null;
+      activeCompiledError = action.error;
       GrammarStore.emitChange();
       break;
   }
