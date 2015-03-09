@@ -1,6 +1,6 @@
 'use strict';
 
-var worker = new Worker('/worker/grammar-worker.js');
+var worker = new Worker('worker/grammar-worker.js');
 var CompiledGrammarActionCreator = require('../actions/CompiledGrammarActionCreator');
 
 var debounce = require('../util/util').debounce;
