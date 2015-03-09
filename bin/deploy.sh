@@ -3,7 +3,8 @@
 gulp clean build
 
 git checkout -b build
-git add -f dist
+mv dist/* .
+git add -A
 git commit -a -m 'build'
 git push --force origin build:gh-pages
 git checkout -
