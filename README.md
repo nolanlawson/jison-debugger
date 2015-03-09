@@ -3,3 +3,5 @@ UI for debugging Jison grammars
 
 
 Developing: use `gulp watch`. This was created with a Yeoman generator.
+
+Deploying to gh-pages: use `npm run deploy`
