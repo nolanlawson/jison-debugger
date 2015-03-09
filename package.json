@@ -56,6 +56,7 @@
   },
   "scripts": {
     "postinstall": "npm run build-jison",
-    "build-jison": "./bin/build-jison.sh"
+    "build-jison": "./bin/build-jison.sh",
+    "deploy": "./bin/deploy.sh"
   }
 }

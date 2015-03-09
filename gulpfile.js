@@ -35,29 +35,46 @@ gulp.task('styles', function () {
 
 // Scripts
 gulp.task('scripts', function () {
-    var bundler = watchify(browserify({
+    var bundler =browserify({
         entries: [sourceFile],
         insertGlobals: true,
         cache: {},
         packageCache: {},
-        fullPaths: true,
-        debug: true
-    }));
+        fullPaths: true
+    });
 
-    bundler.on('update', rebundle);
-
-    function rebundle() {
-        return bundler.bundle()
-            // log errors if they happen
-            .on('error', $.util.log.bind($.util, 'Browserify Error'))
-            .pipe(source(destFileName))
-            .pipe(gulp.dest(destFolder));
-    }
-
-    return rebundle();
+    return bundler.bundle()
+      // log errors if they happen
+      .on('error', $.util.log.bind($.util, 'Browserify Error'))
+      .pipe(source(destFileName))
+      .pipe(gulp.dest(destFolder));
 
 });
 
+// Scripts
+gulp.task('scripts_debug', function () {
+  var bundler = watchify(browserify({
+    entries: [sourceFile],
+    insertGlobals: true,
+    cache: {},
+    packageCache: {},
+    fullPaths: true,
+    debug: true
+  }));
+
+  bundler.on('update', rebundle);
+
+  function rebundle() {
+    return bundler.bundle()
+      // log errors if they happen
+      .on('error', $.util.log.bind($.util, 'Browserify Error'))
+      .pipe(source(destFileName))
+      .pipe(gulp.dest(destFolder));
+  }
+
+  return rebundle();
+
+});
 
 
 
@@ -118,6 +135,15 @@ gulp.task('bundle', ['styles', 'scripts', 'bower', 'worker'], function(){
                .pipe(gulp.dest('dist'));
 });
 
+// Bundle
+gulp.task('bundle_debug', ['styles', 'scripts_debug', 'bower', 'worker'], function(){
+  return gulp.src('./app/*.html')
+    .pipe($.useref.assets())
+    .pipe($.useref.restore())
+    .pipe($.useref())
+    .pipe(gulp.dest('dist'));
+});
+
 // Webserver
 gulp.task('serve', function () {
     gulp.src('./dist')
@@ -152,7 +178,7 @@ gulp.task('extras', function () {
 });
 
 // Watch
-gulp.task('watch', ['html', 'bundle', 'serve'], function () {
+gulp.task('watch', ['html', 'bundle_debug', 'serve'], function () {
 
     // Watch .json files
     gulp.watch('app/scripts/**/*.json', ['json']);
