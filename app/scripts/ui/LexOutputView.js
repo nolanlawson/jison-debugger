@@ -15,6 +15,9 @@ var LexOutputView = React.createClass({
   componentWillMount() {
     GrammarStore.addChangeListener(this._onChange);
   },
+  componentWillUnmount() {
+    GrammarStore.removeChangeListener(this._onChange);
+  },
   _onChange: function () {
     var state = {
       lexDebugger: GrammarStore.getActiveLexDebugger()
@@ -29,7 +32,9 @@ var LexOutputView = React.createClass({
 
     var ulStyle = {
       listStyleType: 'none',
-      fontFamily: 'monospace'
+      fontFamily: 'monospace',
+      maxHeight: 100,
+      paddingLeft: 0
     };
 
     var lexDebugger = this.state.lexDebugger || [];
@@ -46,7 +51,8 @@ var LexOutputView = React.createClass({
       fontWeight: 'normal',
       display:'block',
       fontSize: 13,
-      marginLeft: 2
+      marginLeft: 2,
+      marginBottom: 2
     };
 
     return (

@@ -4,33 +4,33 @@
 var React = require('react');
 var GrammarActionCreator = require('../actions/GrammarActionCreator');
 var ParserActionCreator = require('../actions/ParserActionCreator');
-var constants = require('../util/constants');
-
-var INITIAL_GRAMMAR = constants.INITIAL_GRAMMAR;
-var INITIAL_TEXT_TO_PARSE = constants.INITIAL_TEXT_TO_PARSE;
+var UserInputActionCreator = require('../actions/UserInputActionCreator');
+var GrammarStore = require('../stores/GrammarStore');
 
 var Editor = React.createClass({
   getInitialState: function () {
-    return {grammarText: INITIAL_GRAMMAR, textToParse: INITIAL_TEXT_TO_PARSE};
+    return {
+      grammarText: GrammarStore.getActiveGrammar(),
+      textToParse: GrammarStore.getActiveTextToParse()
+    };
   },
   componentDidMount: function () {
-    this._recompileGrammar(INITIAL_GRAMMAR);
+    this._recompileGrammar(this.state.grammarText);
   },
   _recompileGrammar: function (text) {
     GrammarActionCreator.compileGrammar(text);
   },
-  _reparseText: function (text) {
-    ParserActionCreator.parseText(text);
-  },
   handleGrammarChange: function (event) {
     var text = event.target.value;
     this._recompileGrammar(text);
+    UserInputActionCreator.updateGrammar(text);
     this.state.grammarText = text;
     this.setState(this.state);
   },
   handleTextToParseChange: function (event) {
     var text = event.target.value;
-    this._reparseText(text);
+    UserInputActionCreator.updateTextToParse(text);
+    ParserActionCreator.parseText(text);
     this.state.textToParse = text;
     this.setState(this.state);
   },
@@ -38,7 +38,7 @@ var Editor = React.createClass({
 
     var textAreaStyle = {
       width: 500,
-      height: 500,
+      height: 450,
       fontSize: 12,
       fontFamily: 'monospace'
     };
@@ -56,7 +56,7 @@ var Editor = React.createClass({
           onChange={this.handleGrammarChange}>
         </textarea>
         <div>
-          <h5>Sample text</h5>
+          <h5>Sample text to parse</h5>
           <input
             style={inputStyle}
             type="text"
@@ -70,6 +70,3 @@ var Editor = React.createClass({
 });
 
 module.exports = Editor;
-
-module.exports = Editor;
-

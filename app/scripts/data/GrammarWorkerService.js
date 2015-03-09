@@ -3,7 +3,7 @@
 var worker = new Worker('worker/grammar-worker.js');
 var CompiledGrammarActionCreator = require('../actions/CompiledGrammarActionCreator');
 
-var debounce = require('../util/util').debounce;
+var debounce = require('../util/util').debounce();
 
 var GrammarWorkerService =  {
   compileGrammar: function (grammar) {

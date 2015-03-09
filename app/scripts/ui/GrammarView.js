@@ -17,6 +17,9 @@ var GrammarView = React.createClass({
   componentWillMount() {
     GrammarStore.addChangeListener(this._onChange);
   },
+  componentWillUnmount() {
+    GrammarStore.removeChangeListener(this._onChange);
+  },
   _onChange: function () {
     var state = {
       compiledError: GrammarStore.getActiveCompiledError(),
@@ -61,7 +64,7 @@ var GrammarView = React.createClass({
         <pre style={style}>{display}</pre>
         <div>
           <button
-            className="btn btn-primary"
+            className={"btn btn-primary " + (this.state.compiledError ? 'disabled' : '')}
             title="Download a Jison parser that will create a window.parser object"
             type="button"
             onClick={this.download}
@@ -70,7 +73,7 @@ var GrammarView = React.createClass({
           </button>
           <button
             style={{marginLeft: 5}}
-            className="btn"
+            className={"btn " + (this.state.compiledError ? 'disabled' : '')}
             title="Download the JSON grammar you see here. You will need to create it with new Jison.Parser(grammar)"
             type="button"
             onClick={this.downloadJSON}

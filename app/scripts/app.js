@@ -12,7 +12,8 @@ var mountNode = document.getElementById('app');
 var App = React.createClass({
   render: function () {
     var liStyle = {
-      float: 'left',
+      display: 'inline-block',
+      verticalAlign: 'top',
       paddingLeft: 5,
       paddingRight: 5
     };

@@ -7,6 +7,7 @@ var LexOutputView = require('./LexOutputView');
 var ParsedResultView = require('./ParsedResultView');
 var LexErrorView = require('./LexErrorView');
 var ParseTreeView = require('./ParseTreeView');
+var ParserWorkerService = require('../data/ParserWorkerService');
 
 var ParserOutputView = React.createClass({
   getInitialState: function () {
@@ -19,12 +20,19 @@ var ParserOutputView = React.createClass({
   componentWillMount() {
     GrammarStore.addChangeListener(this._onChange);
   },
+  componentWillUnmount() {
+    GrammarStore.removeChangeListener(this._onChange);
+  },
   _onChange: function () {
     var state = {
       parsedError: GrammarStore.getActiveParsedError(),
       parsedResult: GrammarStore.getActiveParsedResult()
     };
     this.setState(state);
+    if (GrammarStore.getActiveCompiledGrammar()) {
+      // current grammar is valid
+      ParserWorkerService.parseText(GrammarStore.getActiveTextToParse());
+    }
   },
   render: function () {
     var baseStyle = {
@@ -33,7 +41,10 @@ var ParserOutputView = React.createClass({
       fontSize: 12
     };
 
-    if (this.state.parsedError) {
+    if (!GrammarStore.getActiveCompiledGrammar()) {
+      // current grammar is invalid
+      return (<div style={baseStyle}></div>)
+    } else if (this.state.parsedError) {
       return (
         <div style={baseStyle}>
           <LexErrorView/>

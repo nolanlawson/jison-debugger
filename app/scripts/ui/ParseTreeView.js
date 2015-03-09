@@ -14,6 +14,9 @@ var ParseTreeView = React.createClass({
   componentWillMount() {
     GrammarStore.addChangeListener(this._onChange);
   },
+  componentWillUnmount() {
+    GrammarStore.removeChangeListener(this._onChange);
+  },
   _onChange: function () {
     var state = {
       parserDebugger: GrammarStore.getActiveParserDebugger()

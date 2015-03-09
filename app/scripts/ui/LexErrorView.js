@@ -14,6 +14,9 @@ var LexErrorView = React.createClass({
   componentWillMount() {
     GrammarStore.addChangeListener(this._onChange);
   },
+  componentWillUnmount() {
+    GrammarStore.removeChangeListener(this._onChange);
+  },
   _onChange: function () {
     var state = {
       parsedError: GrammarStore.getActiveParsedError()

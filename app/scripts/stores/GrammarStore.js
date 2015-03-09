@@ -4,9 +4,12 @@ var EventEmitter = require('events');
 var assign = require('object-assign');
 var AppDispatcher = require('../dispatcher');
 var ActionTypes = require('../actions/ActionTypes');
+var constants = require('../util/constants');
 
 var CHANGE_EVENT = 'change';
 
+var activeGrammar = localStorage.grammar || constants.INITIAL_GRAMMAR;
+var activeTextToParse = localStorage.textToParse || constants.INITIAL_TEXT_TO_PARSE;
 var activeCompiledGrammar = null;
 var activeCompiledParser = null;
 var activeCompiledError = null;
@@ -45,6 +48,12 @@ var GrammarStore = assign({}, EventEmitter.prototype, {
   },
   getActiveParserDebugger() {
     return activeParserDebugger;
+  },
+  getActiveGrammar() {
+    return activeGrammar;
+  },
+  getActiveTextToParse() {
+    return activeTextToParse;
   }
 });
 
@@ -76,6 +85,16 @@ GrammarStore.dispatchToken = AppDispatcher.register(function (payload) {
       activeLexDebugger = null;
       activeParserDebugger = null;
       activeParsedError = action.error;
+      GrammarStore.emitChange();
+      break;
+    case ActionTypes.GRAMMAR_CHANGED:
+      activeGrammar = action.grammar;
+      localStorage.grammar = action.grammar;
+      GrammarStore.emitChange();
+      break;
+    case ActionTypes.TEXT_TO_PARSE_CHANGED:
+      activeTextToParse = action.textToParse;
+      localStorage.textToParse = action.textToParse;
       GrammarStore.emitChange();
       break;
   }
