@@ -52,6 +52,7 @@ var GrammarView = React.createClass({
     var display;
     if (this.state.compiledError) {
       display = this.state.compiledError.message;
+      style.border = '2px solid #D9534F';
     } else if (this.state.compiledGrammar) {
       display = JSON.stringify(this.state.compiledGrammar, null, '  ');
     } else {

@@ -24,10 +24,12 @@ var LexErrorView = React.createClass({
     this.setState(state);
   },
   render: function () {
+    var preStyle = {fontSize: 11, border: '2px solid #D9534F'};
+    
     return (
       <div>
         <h5>Parser error</h5>
-        <pre style={{fontSize: 11}}>{this.state.parsedError ? this.state.parsedError.message : ''}</pre>
+        <pre style={preStyle}>{this.state.parsedError ? this.state.parsedError.message : ''}</pre>
       </div>
     );
   }
