@@ -8,7 +8,8 @@ module.exports = {
     AppDispatcher.handleWorkerAction({
       type: ActionTypes.TEXT_PARSED,
       parsedResult: data.parsedResult,
-      lexDebugger: data.lexDebugger
+      lexDebugger: data.lexDebugger,
+      parserDebugger: data.parserDebugger
     });
   },
   textErrored: function (error) {

@@ -13,6 +13,7 @@ var activeCompiledError = null;
 var activeParsedResult = null;
 var activeParsedError = null;
 var activeLexDebugger = null;
+var activeParserDebugger = null;
 
 var GrammarStore = assign({}, EventEmitter.prototype, {
   emitChange() {
@@ -41,6 +42,9 @@ var GrammarStore = assign({}, EventEmitter.prototype, {
   },
   getActiveLexDebugger() {
     return activeLexDebugger;
+  },
+  getActiveParserDebugger() {
+    return activeParserDebugger;
   }
 });
 
@@ -63,12 +67,14 @@ GrammarStore.dispatchToken = AppDispatcher.register(function (payload) {
     case ActionTypes.TEXT_PARSED:
       activeParsedResult = action.parsedResult;
       activeLexDebugger = action.lexDebugger;
+      activeParserDebugger = action.parserDebugger;
       activeParsedError = null;
       GrammarStore.emitChange();
       break;
     case ActionTypes.TEXT_ERRORED:
       activeParsedResult = null;
       activeLexDebugger = null;
+      activeParserDebugger = null;
       activeParsedError = action.error;
       GrammarStore.emitChange();
       break;

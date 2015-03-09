@@ -24,8 +24,7 @@ var LexOutputView = React.createClass({
   render: function () {
 
     var mainStyle = {
-      width: 400,
-      height: 122
+      width: 400
     };
 
     var ulStyle = {
@@ -57,7 +56,7 @@ var LexOutputView = React.createClass({
           {
             lexDebugger.map(function (token) {
               return (
-                <li style={{float: 'left'}}>
+                <li style={{display: 'inline-block'}}>
                   <span
                     style={tokenTextStyle}
                     className="label label-default">

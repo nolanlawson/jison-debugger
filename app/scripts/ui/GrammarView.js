@@ -42,7 +42,7 @@ var GrammarView = React.createClass({
   render: function () {
     var style = {
       width: 400,
-      height: 200,
+      height: 150,
       fontSize: 10
     };
 

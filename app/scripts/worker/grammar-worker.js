@@ -24,9 +24,14 @@ function parseText(self, request) {
   var compiledParser = parser;
 
   Jison.lexDebugger = [];
+  Jison.parserDebugger = [];
   var parsedResult = compiledParser.parse(textToParse);
 
-  self.postMessage({parsedResult: parsedResult, lexDebugger: Jison.lexDebugger});
+  self.postMessage({
+    parsedResult: parsedResult,
+    lexDebugger: Jison.lexDebugger,
+    parserDebugger: Jison.parserDebugger
+  });
 }
 
 // request to parse a grammar

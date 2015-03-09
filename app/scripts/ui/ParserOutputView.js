@@ -6,6 +6,7 @@ var GrammarStore = require('../stores/GrammarStore');
 var LexOutputView = require('./LexOutputView');
 var ParsedResultView = require('./ParsedResultView');
 var LexErrorView = require('./LexErrorView');
+var ParseTreeView = require('./ParseTreeView');
 
 var ParserOutputView = React.createClass({
   getInitialState: function () {
@@ -42,6 +43,7 @@ var ParserOutputView = React.createClass({
       return (
         <div style={baseStyle}>
           <LexOutputView/>
+          <ParseTreeView/>
           <ParsedResultView/>
         </div>
       );
