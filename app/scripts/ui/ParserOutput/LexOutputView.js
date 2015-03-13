@@ -4,7 +4,7 @@
 
 var PureRenderMixin = require('React/addons').addons.PureRenderMixin;
 
-var Colorizer = require('./Colorizer');
+var Colorizer = require('./../util/Colorizer');
 
 function createKey(token, i) {
   return JSON.stringify([token, i]);

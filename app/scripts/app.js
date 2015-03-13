@@ -6,12 +6,11 @@ var React = window.React = require('react/addons');
 var PureRenderMixin = React.addons.PureRenderMixin;
 var mountNode = document.getElementById('app');
 
-var Editor = require("./ui/Editor");
-var GrammarView = require("./ui/GrammarView");
-var ParserOutputView = require("./ui/ParserOutputView");
+var Editor = require("./ui/Editor/Editor");
+var GrammarView = require("./ui/GrammarOutput/GrammarView");
+var ParserOutputView = require("./ui/ParserOutput/ParserOutputView");
 var GrammarStore = require('./stores/GrammarStore');
 var ParserWorkerService = require('./data/ParserWorkerService');
-
 
 var App = React.createClass({
   mixins: [PureRenderMixin],

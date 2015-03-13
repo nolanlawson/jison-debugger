@@ -4,9 +4,9 @@
 var React = require('react');
 var PureRenderMixin = require('React/addons').addons.PureRenderMixin;
 
-var GrammarActionCreator = require('../actions/GrammarActionCreator');
-var ParserActionCreator = require('../actions/ParserActionCreator');
-var UserInputActionCreator = require('../actions/UserInputActionCreator');
+var GrammarActionCreator = require('../../actions/GrammarActionCreator');
+var ParserActionCreator = require('../../actions/ParserActionCreator');
+var UserInputActionCreator = require('../../actions/UserInputActionCreator');
 
 var Editor = React.createClass({
   mixins: [PureRenderMixin],
