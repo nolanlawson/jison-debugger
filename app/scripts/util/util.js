@@ -13,6 +13,15 @@ function debounce() {
   };
 }
 
+function safeStringify(obj, arg1, arg2) {
+  try {
+    return JSON.stringify(obj, arg1, arg2);
+  } catch (err) {
+    return obj.toString();
+  }
+}
+
 module.exports = {
-  debounce: debounce
+  debounce: debounce,
+  safeStringify: safeStringify
 };

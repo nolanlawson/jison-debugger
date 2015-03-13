@@ -3,11 +3,11 @@
 /** @jsx React.DOM */
 
 var PureRenderMixin = require('React/addons').addons.PureRenderMixin;
-
 var Colorizer = require('./../util/Colorizer');
+var safeStringify = require('../../util/util').safeStringify;
 
 function createKey(token, i) {
-  return JSON.stringify([token, i]);
+  return safeStringify(token.tokenName) + safeStringify(token.tokenText) + i;
 }
 
 var LexOutputView = React.createClass({
@@ -40,6 +40,8 @@ var LexOutputView = React.createClass({
       marginLeft: 2,
       marginBottom: 2
     };
+
+    console.log('lexDebugger.length', lexDebugger.length);
 
     return (
       <div style={mainStyle}>

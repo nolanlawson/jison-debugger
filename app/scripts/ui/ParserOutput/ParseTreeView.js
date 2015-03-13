@@ -3,6 +3,8 @@
 /** @jsx React.DOM */
 var PureRenderMixin = require('React/addons').addons.PureRenderMixin;
 
+var safeStringify = require('../../util/util').safeStringify;
+
 var ParseTreeView = React.createClass({
   mixins: [PureRenderMixin],
   render: function () {
@@ -20,7 +22,7 @@ var ParseTreeView = React.createClass({
       if (step.action === 'reduce') {
         res += ' --> ';
       }
-      res += step.action + ': ' + JSON.stringify(step.text);
+      res += step.action + ': ' + safeStringify(step.text);
       return res;
     }).join('\n');
     return (
