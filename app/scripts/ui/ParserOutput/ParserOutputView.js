@@ -13,8 +13,8 @@ var ParserOutputView = React.createClass({
   mixins: [PureRenderMixin],
   render: function () {
     var baseStyle = {
-      width: 400,
       height: 222,
+      width: '100%',
       fontSize: 12
     };
 

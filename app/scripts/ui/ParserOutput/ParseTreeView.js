@@ -7,13 +7,9 @@ var ParseTreeView = React.createClass({
   mixins: [PureRenderMixin],
   render: function () {
 
-    var mainStyle = {
-      width: 400
-    };
-
     var preStyle = {
       maxHeight: 175,
-      width: 400,
+      width: '100%',
       fontSize: 11
     };
 
@@ -28,7 +24,7 @@ var ParseTreeView = React.createClass({
       return res;
     }).join('\n');
     return (
-      <div style={mainStyle}>
+      <div>
         <h5>Parse tree</h5>
         <pre style={preStyle}>{text}</pre>
       </div>

@@ -44,13 +44,6 @@ var App = React.createClass({
     };
   },
   render: function () {
-    var liStyle = {
-      display: 'inline-block',
-      verticalAlign: 'top',
-      paddingLeft: 5,
-      paddingRight: 5
-    };
-
     var editorProps = {
       grammar: this.state.grammar,
       textToParse: this.state.textToParse
@@ -71,17 +64,15 @@ var App = React.createClass({
     };
 
     return (
-        <ul style={{listStyleType: 'none'}}>
-          <li style={liStyle}>
-            <Editor {...editorProps}/>
-          </li>
-          <li style={liStyle}>
-            <div>
-              <GrammarView {...grammarViewProps}/>
-              <ParserOutputView {...parserOutputProps}/>
-            </div>
-          </li>
-        </ul>
+      <div className="row">
+        <div className="col-md-5">
+          <Editor {...editorProps}/>
+        </div>
+        <div className="col-md-7">
+          <GrammarView {...grammarViewProps}/>
+          <ParserOutputView {...parserOutputProps}/>
+        </div>
+      </div>
     );
   }
 });

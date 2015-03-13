@@ -29,14 +29,14 @@ var Editor = React.createClass({
   render: function () {
 
     var textAreaStyle = {
-      width: 500,
       height: 450,
+      width: '100%',
       fontSize: 12,
       fontFamily: 'monospace'
     };
 
     var inputStyle = {
-      width: 500
+      width: '100%'
     };
 
     return (
@@ -48,7 +48,7 @@ var Editor = React.createClass({
           onChange={this.handleGrammarChange}>
         </textarea>
         <div>
-          <h5>Sample text to parse</h5>
+          <h5>Text to parse</h5>
           <input
             style={inputStyle}
             type="text"

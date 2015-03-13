@@ -10,8 +10,8 @@ var GrammarErrorView = React.createClass({
   mixins: [PureRenderMixin],
   render: function () {
     var style = {
-      width: 400,
       height: 150,
+      width: '100%',
       fontSize: 10,
       border: '2px solid #D9534F'
     };

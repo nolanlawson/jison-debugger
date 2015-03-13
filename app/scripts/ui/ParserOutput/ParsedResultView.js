@@ -7,7 +7,11 @@ var PureRenderMixin = require('React/addons').addons.PureRenderMixin;
 var ParsedResultView = React.createClass({
   mixins: [PureRenderMixin],
   render: function () {
-    var style = {width: 400, height: 100, fontSize: 12};
+    var style = {
+      height: 100,
+      width: '100%',
+      fontSize: 12
+    };
 
     var parsedResult = this.props.parsedResult || '';
     return (

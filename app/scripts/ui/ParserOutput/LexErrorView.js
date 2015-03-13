@@ -7,7 +7,11 @@ var PureRenderMixin = require('React/addons').addons.PureRenderMixin;
 var LexErrorView = React.createClass({
   mixins: [PureRenderMixin],
   render: function () {
-    var preStyle = {fontSize: 11, border: '2px solid #D9534F'};
+    var preStyle = {
+      width: '100%',
+      fontSize: 11,
+      border: '2px solid #D9534F'
+    };
 
     return (
       <div>

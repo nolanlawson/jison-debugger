@@ -15,13 +15,11 @@ var LexOutputView = React.createClass({
   render: function () {
 
     var mainStyle = {
-      width: 400
     };
 
     var ulStyle = {
       listStyleType: 'none',
       fontFamily: 'monospace',
-      maxHeight: 100,
       paddingLeft: 0
     };
 
