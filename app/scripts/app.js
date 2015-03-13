@@ -9,38 +9,55 @@ var mountNode = document.getElementById('app');
 var Editor = require("./ui/Editor/Editor");
 var GrammarView = require("./ui/GrammarOutput/GrammarView");
 var ParserOutputView = require("./ui/ParserOutput/ParserOutputView");
-var GrammarStore = require('./stores/GrammarStore');
+var GrammarInputStore = require('./stores/GrammarInputStore');
+var GrammarOutputStore = require('./stores/GrammarOutputStore');
+var ParserOutputStore = require('./stores/ParserOutputStore');
 var ParserWorkerService = require('./data/ParserWorkerService');
+
 
 var App = React.createClass({
   mixins: [PureRenderMixin],
   componentWillMount() {
-    GrammarStore.addChangeListener(this._onChange);
+    GrammarInputStore.addChangeListener(this._onGrammarInputChange);
+    GrammarOutputStore.addChangeListener(this._onGrammarOutputChange);
+    ParserOutputStore.addChangeListener(this._onParserOutputChange);
   },
   componentWillUnmount() {
-    GrammarStore.removeChangeListener(this._onChange);
+    GrammarInputStore.removeChangeListener(this._onGrammarInputChange);
+    GrammarOutputStore.removeChangeListener(this._onGrammarOutputChange);
+    ParserOutputStore.removeChangeListener(this._onParserOutputChange);
   },
   getInitialState: function () {
     return this._getState();
   },
-  _onChange: function () {
+  _onGrammarInputChange: function () {
     this.replaceState(this._getState());
-    if (GrammarStore.getActiveCompiledGrammar()) {
+    if (GrammarOutputStore.getActiveCompiledGrammar()) {
       // current grammar is valid
-      ParserWorkerService.parseText(GrammarStore.getActiveTextToParse());
+      ParserWorkerService.parseText(GrammarInputStore.getActiveTextToParse());
     }
+  },
+  _onGrammarOutputChange: function () {
+    this.replaceState(this._getState());
+    if (GrammarOutputStore.getActiveCompiledGrammar()) {
+      // current grammar is valid
+      ParserWorkerService.parseText(GrammarInputStore.getActiveTextToParse());
+    }
+  },
+  _onParserOutputChange: function () {
+    this.replaceState(this._getState());
   },
   _getState: function () {
     return {
-      grammar: GrammarStore.getActiveGrammar(),
-      textToParse: GrammarStore.getActiveTextToParse(),
-      compiledError: GrammarStore.getActiveCompiledError(),
-      compiledGrammar: GrammarStore.getActiveCompiledGrammar(),
-      compiledParser: GrammarStore.getActiveCompiledParser(),
-      parsedError: GrammarStore.getActiveParsedError(),
-      parsedResult: GrammarStore.getActiveParsedResult(),
-      parserDebugger: GrammarStore.getActiveParserDebugger(),
-      lexDebugger: GrammarStore.getActiveLexDebugger()
+      grammar: GrammarInputStore.getActiveGrammar(),
+      textToParse: GrammarInputStore.getActiveTextToParse(),
+      compiledError: GrammarOutputStore.getActiveCompiledError(),
+      compiledGrammar: GrammarOutputStore.getActiveCompiledGrammar(),
+      compiledParser: GrammarOutputStore.getActiveCompiledParser(),
+      parsedError: ParserOutputStore.getActiveParsedError(),
+      parsedResult: ParserOutputStore.getActiveParsedResult(),
+      parserDebugger: ParserOutputStore.getActiveParserDebugger(),
+      lexDebugger: ParserOutputStore.getActiveLexDebugger()
     };
   },
   render: function () {
