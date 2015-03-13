@@ -62,8 +62,6 @@ gulp.task('scripts_debug', function () {
     debug: true
   }));
 
-  bundler.on('update', rebundle);
-
   function rebundle() {
     return bundler.bundle()
       // log errors if they happen
@@ -72,8 +70,9 @@ gulp.task('scripts_debug', function () {
       .pipe(gulp.dest(destFolder));
   }
 
-  return rebundle();
+  bundler.on('update', rebundle);
 
+  return rebundle();
 });
 
 
@@ -83,7 +82,7 @@ gulp.task('jade', function () {
     return gulp.src('app/template/*.jade')
         .pipe($.jade({ pretty: true }))
         .pipe(gulp.dest('dist'));
-})
+});
 
 
 
@@ -148,7 +147,6 @@ gulp.task('bundle_debug', ['styles', 'scripts_debug', 'bower', 'worker'], functi
 gulp.task('serve', function () {
     gulp.src('./dist')
         .pipe($.webserver({
-            livereload: true,
             port: 9000
         }));
 });
