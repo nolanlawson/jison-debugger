@@ -2,13 +2,13 @@
 
 var worker = new Worker('worker/grammar-worker.js');
 var ParsedTextActionCreator = require('../actions/ParsedTextActionCreator');
-var GrammarStore = require('../stores/GrammarStore');
+var GrammarOutputStore = require('../stores/GrammarOutputStore');
 var debounce = require('../util/util').debounce();
 
 var ParserWorkerService =  {
   parseText: function (text) {
     debounce(700, function () {
-      if (!GrammarStore.getActiveCompiledGrammar()) {
+      if (!GrammarOutputStore.getActiveCompiledGrammar()) {
         return; // grammar is invalid, can't parse
       }
 
@@ -21,7 +21,7 @@ var ParserWorkerService =  {
       // ask the web worker to parse the text for us
       worker.postMessage({
         textToParse: text,
-        compiledParser: GrammarStore.getActiveCompiledParser()
+        compiledParser: GrammarOutputStore.getActiveCompiledParser()
       });
     }.bind(this));
   }
