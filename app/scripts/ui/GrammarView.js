@@ -4,38 +4,19 @@
 
 /* global blobUtil */
 
-var GrammarStore = require('../stores/GrammarStore');
+var PureRenderMixin = require('React/addons').addons.PureRenderMixin;
 
 var GrammarView = React.createClass({
-  getInitialState: function () {
-    var state = {
-      compiledError: GrammarStore.getActiveCompiledError(),
-      compiledGrammar: GrammarStore.getActiveCompiledGrammar()
-    };
-    return state;
-  },
-  componentWillMount() {
-    GrammarStore.addChangeListener(this._onChange);
-  },
-  componentWillUnmount() {
-    GrammarStore.removeChangeListener(this._onChange);
-  },
-  _onChange: function () {
-    var state = {
-      compiledError: GrammarStore.getActiveCompiledError(),
-      compiledGrammar: GrammarStore.getActiveCompiledGrammar()
-    };
-    this.setState(state);
-  },
+  mixins: [PureRenderMixin],
   download: function () {
-    var parser = GrammarStore.getActiveCompiledParser();
+    var parser = this.props.compiledParser;
     var blob = blobUtil.createBlob([parser],
       {type: 'text/javascript'}
     );
     window.open(blobUtil.createObjectURL(blob));
   },
   downloadJSON: function () {
-    var grammar = GrammarStore.getActiveCompiledGrammar();
+    var grammar = this.props.compiledGrammar;
     var blob = blobUtil.createBlob(
       [JSON.stringify(grammar, null, '  ')],
       {type: 'application/json'}
@@ -50,11 +31,11 @@ var GrammarView = React.createClass({
     };
 
     var display;
-    if (this.state.compiledError) {
-      display = this.state.compiledError.message;
+    if (this.props.compiledError) {
+      display = this.props.compiledError.message;
       style.border = '2px solid #D9534F';
-    } else if (this.state.compiledGrammar) {
-      display = JSON.stringify(this.state.compiledGrammar, null, '  ');
+    } else if (this.props.compiledGrammar) {
+      display = JSON.stringify(this.props.compiledGrammar, null, '  ');
     } else {
       display = '';
     }
@@ -65,7 +46,7 @@ var GrammarView = React.createClass({
         <pre style={style}>{display}</pre>
         <div>
           <button
-            className={"btn btn-primary " + (this.state.compiledError ? 'disabled' : '')}
+            className={"btn btn-primary " + (this.props.compiledError ? 'disabled' : '')}
             title="Download a Jison parser that will create a window.parser object"
             type="button"
             onClick={this.download}
@@ -74,7 +55,7 @@ var GrammarView = React.createClass({
           </button>
           <button
             style={{marginLeft: 5}}
-            className={"btn " + (this.state.compiledError ? 'disabled' : '')}
+            className={"btn " + (this.props.compiledError ? 'disabled' : '')}
             title="Download the JSON grammar you see here. You will need to create it with new Jison.Parser(grammar)"
             type="button"
             onClick={this.downloadJSON}

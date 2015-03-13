@@ -2,38 +2,15 @@
 
 /** @jsx React.DOM */
 
-var GrammarStore = require('../stores/GrammarStore');
+var PureRenderMixin = require('React/addons').addons.PureRenderMixin;
+
 var LexOutputView = require('./LexOutputView');
 var ParsedResultView = require('./ParsedResultView');
 var LexErrorView = require('./LexErrorView');
 var ParseTreeView = require('./ParseTreeView');
-var ParserWorkerService = require('../data/ParserWorkerService');
 
 var ParserOutputView = React.createClass({
-  getInitialState: function () {
-    var state = {
-      parsedError: GrammarStore.getActiveParsedError(),
-      parsedResult: GrammarStore.getActiveParsedResult()
-    };
-    return state;
-  },
-  componentWillMount() {
-    GrammarStore.addChangeListener(this._onChange);
-  },
-  componentWillUnmount() {
-    GrammarStore.removeChangeListener(this._onChange);
-  },
-  _onChange: function () {
-    var state = {
-      parsedError: GrammarStore.getActiveParsedError(),
-      parsedResult: GrammarStore.getActiveParsedResult()
-    };
-    this.setState(state);
-    if (GrammarStore.getActiveCompiledGrammar()) {
-      // current grammar is valid
-      ParserWorkerService.parseText(GrammarStore.getActiveTextToParse());
-    }
-  },
+  mixins: [PureRenderMixin],
   render: function () {
     var baseStyle = {
       width: 400,
@@ -41,21 +18,21 @@ var ParserOutputView = React.createClass({
       fontSize: 12
     };
 
-    if (!GrammarStore.getActiveCompiledGrammar()) {
+    if (!this.props.compiledGrammar) {
       // current grammar is invalid
       return (<div style={baseStyle}></div>)
-    } else if (this.state.parsedError) {
+    } else if (this.props.parsedError) {
       return (
         <div style={baseStyle}>
-          <LexErrorView/>
+          <LexErrorView parsedError={this.props.parsedError}/>
         </div>
       );
-    } else if (this.state.parsedResult) {
+    } else if (this.props.parsedResult) {
       return (
         <div style={baseStyle}>
-          <LexOutputView/>
-          <ParseTreeView/>
-          <ParsedResultView/>
+          <LexOutputView lexDebugger={this.props.lexDebugger}/>
+          <ParseTreeView parserDebugger={this.props.parserDebugger}/>
+          <ParsedResultView parsedResult={this.props.parsedResult}/>
         </div>
       );
     } else {

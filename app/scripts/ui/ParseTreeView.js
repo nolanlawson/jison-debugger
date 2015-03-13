@@ -1,28 +1,10 @@
 'use strict';
 
 /** @jsx React.DOM */
-
-var GrammarStore = require('../stores/GrammarStore');
+var PureRenderMixin = require('React/addons').addons.PureRenderMixin;
 
 var ParseTreeView = React.createClass({
-  getInitialState: function () {
-    var state = {
-      parserDebugger: GrammarStore.getActiveParserDebugger()
-    };
-    return state;
-  },
-  componentWillMount() {
-    GrammarStore.addChangeListener(this._onChange);
-  },
-  componentWillUnmount() {
-    GrammarStore.removeChangeListener(this._onChange);
-  },
-  _onChange: function () {
-    var state = {
-      parserDebugger: GrammarStore.getActiveParserDebugger()
-    };
-    this.setState(state);
-  },
+  mixins: [PureRenderMixin],
   render: function () {
 
     var mainStyle = {
@@ -35,7 +17,7 @@ var ParseTreeView = React.createClass({
       fontSize: 11
     };
 
-    var parserDebugger = this.state.parserDebugger || [];
+    var parserDebugger = this.props.parserDebugger || [];
 
     var text = parserDebugger.map(function (step) {
       var res = '';

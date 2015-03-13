@@ -2,37 +2,29 @@
 
 /** @jsx React.DOM */
 var React = require('react');
+var PureRenderMixin = require('React/addons').addons.PureRenderMixin;
+
 var GrammarActionCreator = require('../actions/GrammarActionCreator');
 var ParserActionCreator = require('../actions/ParserActionCreator');
 var UserInputActionCreator = require('../actions/UserInputActionCreator');
-var GrammarStore = require('../stores/GrammarStore');
 
 var Editor = React.createClass({
-  getInitialState: function () {
-    return {
-      grammarText: GrammarStore.getActiveGrammar(),
-      textToParse: GrammarStore.getActiveTextToParse()
-    };
-  },
+  mixins: [PureRenderMixin],
   componentDidMount: function () {
-    this._recompileGrammar(this.state.grammarText);
+    this._recompileGrammar(this.props.grammar);
   },
   _recompileGrammar: function (text) {
     GrammarActionCreator.compileGrammar(text);
   },
   handleGrammarChange: function (event) {
     var text = event.target.value;
-    this._recompileGrammar(text);
     UserInputActionCreator.updateGrammar(text);
-    this.state.grammarText = text;
-    this.setState(this.state);
+    this._recompileGrammar(text);
   },
   handleTextToParseChange: function (event) {
     var text = event.target.value;
     UserInputActionCreator.updateTextToParse(text);
     ParserActionCreator.parseText(text);
-    this.state.textToParse = text;
-    this.setState(this.state);
   },
   render: function () {
 
@@ -52,7 +44,7 @@ var Editor = React.createClass({
         <h5>Write your grammar</h5>
         <textarea
           style={textAreaStyle}
-          value={this.state.grammarText}
+          value={this.props.grammar}
           onChange={this.handleGrammarChange}>
         </textarea>
         <div>
@@ -60,7 +52,7 @@ var Editor = React.createClass({
           <input
             style={inputStyle}
             type="text"
-            value={this.state.textToParse}
+            value={this.props.textToParse}
             onChange={this.handleTextToParseChange}>
           </input>
         </div>

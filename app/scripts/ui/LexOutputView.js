@@ -2,28 +2,16 @@
 
 /** @jsx React.DOM */
 
-var GrammarStore = require('../stores/GrammarStore');
+var PureRenderMixin = require('React/addons').addons.PureRenderMixin;
+
 var Colorizer = require('./Colorizer');
 
+function createKey(token, i) {
+  return JSON.stringify([token, i]);
+}
+
 var LexOutputView = React.createClass({
-  getInitialState: function () {
-    var state = {
-      lexDebugger: GrammarStore.getActiveLexDebugger()
-    };
-    return state;
-  },
-  componentWillMount() {
-    GrammarStore.addChangeListener(this._onChange);
-  },
-  componentWillUnmount() {
-    GrammarStore.removeChangeListener(this._onChange);
-  },
-  _onChange: function () {
-    var state = {
-      lexDebugger: GrammarStore.getActiveLexDebugger()
-    };
-    this.setState(state);
-  },
+  mixins: [PureRenderMixin],
   render: function () {
 
     var mainStyle = {
@@ -37,7 +25,7 @@ var LexOutputView = React.createClass({
       paddingLeft: 0
     };
 
-    var lexDebugger = this.state.lexDebugger || [];
+    var lexDebugger = this.props.lexDebugger || [];
 
     var tokenTextStyle = {
       fontWeight: 'normal',
@@ -60,9 +48,9 @@ var LexOutputView = React.createClass({
         <h5>Tokens</h5>
         <ul style={ulStyle}>
           {
-            lexDebugger.map(function (token) {
+            lexDebugger.map(function (token, i) {
               return (
-                <li style={{display: 'inline-block'}}>
+                <li key={createKey(token, i)} style={{display: 'inline-block'}}>
                   <span
                     style={tokenTextStyle}
                     className="label label-default">

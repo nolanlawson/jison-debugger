@@ -2,33 +2,14 @@
 
 /** @jsx React.DOM */
 
-var GrammarStore = require('../stores/GrammarStore');
+var PureRenderMixin = require('React/addons').addons.PureRenderMixin;
 
 var ParsedResultView = React.createClass({
-  getInitialState: function () {
-    var state = {
-      parsedResult: GrammarStore.getActiveParsedResult(),
-      parsedError: GrammarStore.getActiveParsedError()
-    };
-    return state;
-  },
-  componentWillMount() {
-    GrammarStore.addChangeListener(this._onChange);
-  },
-  componentWillUnmount() {
-    GrammarStore.removeChangeListener(this._onChange);
-  },
-  _onChange: function () {
-    var state = {
-      parsedResult: GrammarStore.getActiveParsedResult(),
-      parsedError: GrammarStore.getActiveParsedError()
-    };
-    this.setState(state);
-  },
+  mixins: [PureRenderMixin],
   render: function () {
     var style = {width: 400, height: 100, fontSize: 12};
 
-    var parsedResult = this.state.parsedResult || '';
+    var parsedResult = this.props.parsedResult || '';
     return (
       <div style={style}>
         <h5>Parser result</h5>
