@@ -1,5 +1,6 @@
 #!/bin/sh
 
+rm -fr dist
 gulp clean build
 
 git checkout -b build
