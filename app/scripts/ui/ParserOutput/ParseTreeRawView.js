@@ -3,14 +3,16 @@
 /** @jsx React.DOM */
 var PureRenderMixin = require('React/addons').addons.PureRenderMixin;
 
-var ParseTreeRawView = require('./ParseTreeRawView');
-var ParseTreeD3View = require('./ParseTreeD3View');
-
 var safeStringify = require('../../util/util').safeStringify;
 
-var ParseTreeView = React.createClass({
+var ParseTreeRawView = React.createClass({
   mixins: [PureRenderMixin],
   render: function () {
+
+    var preStyle = {
+      width: '100%',
+      fontSize: 11
+    };
 
     var parserDebugger = this.props.parserDebugger || [];
 
@@ -27,17 +29,11 @@ var ParseTreeView = React.createClass({
       }
       return res;
     }).join('\n');
-
-    // <ParseTreeRawView parserDebugger={this.props.parserDebugger}/>
-
     return (
-      <div>
-        <h5>Parse tree</h5>
-        <ParseTreeD3View parserDebugger={this.props.parserDebugger} />
-      </div>
+      <pre style={preStyle}>{text}</pre>
     );
   }
 });
 
-module.exports = ParseTreeView;
+module.exports = ParseTreeRawView;
 
