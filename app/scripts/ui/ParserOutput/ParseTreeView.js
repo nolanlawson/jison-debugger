@@ -24,7 +24,7 @@ var ParseTreeView = React.createClass({
       }
       res += step.action + ': ' + safeStringify(step.text);
       if (step.action === 'reduce') {
-        res += ' (' + step.nonterminal + ')';
+        res += ' (' + JSON.stringify(step.prereduce) + ' -> ' + step.nonterminal + ')';
       } else if (step.action === 'shift') {
         res += ' (' + step.terminal + ')';
       }

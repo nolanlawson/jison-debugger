@@ -23,9 +23,11 @@ var SampleGrammarLoader = React.createClass({
       return;
     }
 
+
     UserInputActionCreator.updateGrammar(sampleGrammar.grammar);
-    GrammarActionCreator.compileGrammar(sampleGrammar.grammar);
     UserInputActionCreator.updateTextToParse(sampleGrammar.sampleText);
+    GrammarActionCreator.compileGrammar(sampleGrammar.grammar);
+    GrammarActionCreator.changeGrammarSignificantly();
   },
   render: function () {
     var style = {

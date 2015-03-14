@@ -41,6 +41,13 @@ ParserOutputStore.dispatchToken = AppDispatcher.register(function (payload) {
   var action = payload.action;
 
   switch (action.type) {
+    case ActionTypes.GRAMMAR_CHANGED_SIGNIFICANTLY:
+      activeParsedResult = null;
+      activeLexDebugger = null;
+      activeParserDebugger = null;
+      activeParsedError = null;
+      ParserOutputStore.emitChange();
+      break;
     case ActionTypes.TEXT_PARSED:
       activeParsedResult = action.parsedResult;
       activeLexDebugger = action.lexDebugger;

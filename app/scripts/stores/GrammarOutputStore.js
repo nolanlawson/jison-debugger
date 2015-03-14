@@ -30,13 +30,19 @@ var GrammarOutputStore = assign({}, EventEmitter.prototype, {
   },
   getActiveCompiledError() {
     return activeCompiledError;
-  },
+  }
 });
 
 GrammarOutputStore.dispatchToken = AppDispatcher.register(function (payload) {
   var action = payload.action;
 
   switch (action.type) {
+    case ActionTypes.GRAMMAR_CHANGED_SIGNIFICANTLY:
+      activeCompiledGrammar = null;
+      activeCompiledError = null;
+      activeCompiledParser = null;
+      GrammarOutputStore.emitChange();
+      break;
     case ActionTypes.GRAMMAR_COMPILED:
       activeCompiledGrammar = action.compiledGrammar;
       activeCompiledParser = action.compiledParser;
