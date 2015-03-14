@@ -16,6 +16,7 @@ var ParserWorkerService =  {
         ParsedTextActionCreator.textErrored(e);
       });
       worker.addEventListener('message', function (e) {
+        //console.log(JSON.stringify(e.data, null, '  '));
         ParsedTextActionCreator.textParsed(e.data);
       });
       // ask the web worker to parse the text for us

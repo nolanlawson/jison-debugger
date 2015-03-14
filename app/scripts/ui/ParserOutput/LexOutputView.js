@@ -41,7 +41,7 @@ var LexOutputView = React.createClass({
       marginBottom: 2
     };
 
-    console.log('lexDebugger.length', lexDebugger.length);
+    //console.log('lexDebugger.length', lexDebugger.length);
 
     return (
       <div style={mainStyle}>

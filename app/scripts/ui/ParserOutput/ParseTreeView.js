@@ -10,7 +10,7 @@ var ParseTreeView = React.createClass({
   render: function () {
 
     var preStyle = {
-      maxHeight: 175,
+      maxHeight: 275,
       width: '100%',
       fontSize: 11
     };
@@ -24,7 +24,7 @@ var ParseTreeView = React.createClass({
       }
       res += step.action + ': ' + safeStringify(step.text);
       if (step.action === 'reduce') {
-        res += ' (' + JSON.stringify(step.prereduce) + ' -> ' + step.nonterminal + ')';
+        res += ' (' + step.nonterminal + ' -> ' + JSON.stringify(step.productions) + ')';
       } else if (step.action === 'shift') {
         res += ' (' + step.terminal + ')';
       }
