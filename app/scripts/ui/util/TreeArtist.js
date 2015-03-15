@@ -29,7 +29,7 @@ function drawAbstractSvg(root) {
   function calculateNeededXIncrement(node) {
     var estimatedNeededWidth = Math.max(node.name.length,
       node.subtitle ? node.subtitle.length : 0);
-    estimatedNeededWidth *= 7; // 14px
+    estimatedNeededWidth *= 9; // 14px / 2, with 2px padding
     if (estimatedNeededWidth > xIncrement) {
       xIncrement = estimatedNeededWidth;
     }
