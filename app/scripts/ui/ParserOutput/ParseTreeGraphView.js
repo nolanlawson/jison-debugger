@@ -27,7 +27,7 @@ var ParseTreeGraphView = React.createClass({
       <svg style={svgStyle} width={svgWidth} height={svgHeight}>
         <g transform={transform}>
           {
-            allPathsAndNodes.map(function (el) {
+            allPathsAndNodes.map(function (el, i) {
 
               if (el.drawFrom) { // path
                 var path = el;
@@ -36,8 +36,9 @@ var ParseTreeGraphView = React.createClass({
                   'C' + path.drawFrom[0] + ',' + halfwayY + ' ' +
                   path.drawTo[0] + ',' + halfwayY + ' ' +
                   path.drawTo[0] + ',' + path.drawTo[1];
+
                 return (
-                  <path className="tree-link" d={d}></path>
+                  <path key={JSON.stringify(path)} className="tree-link" d={d}></path>
                 )
               } else { // node
                 var node = el;
@@ -64,14 +65,20 @@ var ParseTreeGraphView = React.createClass({
                 }
 
                 return (
-                  <g className="tree-node" transform={translate}>
+                  <g key={JSON.stringify(node)} className="tree-node" transform={translate}>
                     <title style={{fontFamily: 'monospace'}}>{node.output}</title>
                     <circle r="10"></circle>
                     {
-                      labels.map(function (label) {
+                      labels.map(function (label, i) {
+                        var labelKey = [label, i];
                         return (
-                          <text style={label.style} y={label.y} dy=".35em" textAnchor="middle">
-                            {label.value}
+                          <text
+                            key={labelKey}
+                            style={label.style}
+                            y={label.y}
+                            dy=".35em"
+                            textAnchor="middle">
+                              {label.value}
                           </text>
                         )
                       })

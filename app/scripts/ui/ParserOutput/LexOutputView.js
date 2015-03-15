@@ -7,7 +7,7 @@ var Colorizer = require('./../util/Colorizer');
 var safeStringify = require('../../util/util').safeStringify;
 
 function createKey(token, i) {
-  return safeStringify(token.tokenName) + safeStringify(token.tokenText) + i;
+  return JSON.stringify([safeStringify(token), i]);
 }
 
 var LexOutputView = React.createClass({
