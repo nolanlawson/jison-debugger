@@ -8,7 +8,6 @@ var ParsedResultView = React.createClass({
   mixins: [PureRenderMixin],
   render: function () {
     var style = {
-      height: 100,
       width: '100%',
       fontSize: 12
     };
