@@ -41,6 +41,13 @@ function drawAbstractSvg(root) {
 
   calculateSubtreeWidth(root);
 
+  if (root.width < 200) {
+    // use a bigger xIncrement so it doesn't look so crowded.
+    // recalculate. TODO: make it not recalculate, be smarter about this
+    xIncrement = 120;
+    calculateSubtreeWidth(root);
+  }
+
   function generate(treeNode, depth, x) {
     var y = depth * yIncrement;
     var children = treeNode.children;
