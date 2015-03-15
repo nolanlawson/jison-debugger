@@ -21,9 +21,25 @@ function drawAbstractSvg(root) {
   calculateDepth(root, 0);
 
   var svgWidth = 500;
-  var xIncrement = 200;
-  var yIncrement = 100;
+  var xIncrement = 50;
+  var yIncrement = 50;
   var svgHeight = 80 + ((maxDepth + 1) * yIncrement);
+
+  function calculateSubtreeWidth(node) {
+    node.width = 0;
+    if (!node.children) {
+      return;
+    }
+    node.children.forEach(function (child, i) {
+      calculateSubtreeWidth(child);
+      node.width += child.width;
+      if (i > 0) {
+        node.width += xIncrement;
+      }
+    });
+  }
+
+  calculateSubtreeWidth(root);
 
   function generate(treeNode, depth, x) {
     var y = depth * yIncrement;
@@ -37,23 +53,44 @@ function drawAbstractSvg(root) {
     if (!children) {
       return;
     }
-    var parentCenter = (children.length - 1) / 2;
+
+    var totalWidth = 0;
     children.forEach(function (child, i) {
-      var childX = x + ((i - parentCenter) * xIncrement);
+      totalWidth += child.width;
+      if (i > 0) {
+        totalWidth += xIncrement;
+      }
+    });
+    for (var i = 0; i < children.length; i++) {
+      var child = children[i];
+      var childX = 0;
+      for (var j = 0; j < i; j++) {
+        childX += children[j].width;
+        if (i > 0) {
+          childX += xIncrement;
+        }
+      }
+      if (children.length % 2 === 0) {
+        childX += ((child.width + xIncrement) / 2);
+      } else {
+        childX += (child.width / 2);
+      }
+      childX = x + (childX - totalWidth);
       generate(child, depth + 1, childX);
       paths.push({
         drawFrom: [x, y],
         drawTo: [childX, (depth + 1) * yIncrement]
       });
-    });
+    }
   }
 
-  generate(root, 0, svgWidth / 2);
+  generate(root, 0, 0);
 
   var result = {
     paths: paths,
     nodes: nodes,
-    svgHeight: svgHeight
+    svgHeight: svgHeight,
+    svgWidth: svgWidth
   };
 
   return result;

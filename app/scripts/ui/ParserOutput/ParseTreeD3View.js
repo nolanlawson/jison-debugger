@@ -3,51 +3,26 @@
 /** @jsx React.DOM */
 var PureRenderMixin = require('React/addons').addons.PureRenderMixin;
 
-var safeStringify = require('../../util/util').safeStringify;
-
 var TreeArtist = require('../util/TreeArtist');
+var TreeBuilder = require('../util/TreeBuilder');
 
 var ParseTreeD3View = React.createClass({
   mixins: [PureRenderMixin],
   render: function () {
-
-
     var parserDebugger = this.props.parserDebugger || [];
 
-    var text = parserDebugger.map(function (step) {
-      var res = '';
-      if (step.action === 'reduce') {
-        res += ' --> ';
-      }
-      res += step.action + ': ' + safeStringify(step.text);
-      if (step.action === 'reduce') {
-        res += ' (' + step.nonterminal + ' -> ' + JSON.stringify(step.productions) + ')';
-      } else if (step.action === 'shift') {
-        res += ' (' + step.terminal + ')';
-      }
-      return res;
-    }).join('\n');
-
-
-    var root = {
-      name: 'S',
-      children: [
-        {
-          name: 'NP'
-        },
-        {
-          name: 'VP'
-        }
-      ]
-    };
+    var root = TreeBuilder.buildTree(parserDebugger);
 
     var abstractSvg = TreeArtist.drawAbstractSvg(root);
     var svgHeight = abstractSvg.svgHeight;
+    var svgWidth = abstractSvg.svgWidth;
     var allPathsAndNodes = abstractSvg.paths.slice().concat(abstractSvg.nodes);
+
+    var transform = 'translate(' + (svgWidth / 2) + ',40)';
 
     return (
       <svg width="100%" height={svgHeight}>
-        <g transform="translate(0,40)">
+        <g transform={transform}>
           {
             allPathsAndNodes.map(function (el) {
 
