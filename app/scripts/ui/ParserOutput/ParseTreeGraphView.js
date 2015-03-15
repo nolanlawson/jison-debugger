@@ -19,16 +19,21 @@ var ParseTreeGraphView = React.createClass({
     var svgWidth = abstractSvg.svgWidth;
     var allPathsAndNodes = abstractSvg.paths.slice().concat(abstractSvg.nodes);
 
-    var transform = 'translate(' + (svgWidth / 2) + ',40)';
+    var transform = 'translate(0,40)';
 
     var svgStyle = {
+      width: '100%',
+      maxHeight: svgHeight
     };
 
+    // viewBox basically makes the SVG auto-responsive. 2015 is amazing.
+    var viewBox = "0 0 " + svgWidth + " " + svgHeight;
+
     return (
-      <svg style={svgStyle} width={svgWidth} height={svgHeight}>
+      <svg version="1.1" viewBox={viewBox} style={svgStyle}>
         <g transform={transform}>
           {
-            allPathsAndNodes.map(function (el, i) {
+            allPathsAndNodes.map(function (el) {
 
               if (el.drawFrom) { // path
                 var path = el;
