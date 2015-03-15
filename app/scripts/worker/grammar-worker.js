@@ -25,7 +25,17 @@ function parseText(self, request) {
 
   Jison.lexDebugger = [];
   Jison.parserDebugger = [];
-  var parsedResult = compiledParser.parse(textToParse);
+  var parsedResult
+  try {
+    parsedResult = compiledParser.parse(textToParse);
+  } catch (e) {
+    self.postMessage({
+      error: true,
+      message: e.message,
+      lexDebugger: Jison.lexDebugger
+    });
+    return;
+  }
 
   self.postMessage({
     parsedResult: parsedResult,

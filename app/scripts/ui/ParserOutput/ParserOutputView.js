@@ -23,6 +23,7 @@ var ParserOutputView = React.createClass({
     } else if (this.props.parsedError) {
       return (
         <div style={baseStyle}>
+          <LexOutputView lexDebugger={this.props.lexDebugger}/>
           <LexErrorView parsedError={this.props.parsedError}/>
         </div>
       );

@@ -57,7 +57,7 @@ ParserOutputStore.dispatchToken = AppDispatcher.register(function (payload) {
       break;
     case ActionTypes.TEXT_ERRORED:
       activeParsedResult = null;
-      activeLexDebugger = null;
+      activeLexDebugger = action.error.lexDebugger || [];
       activeParserDebugger = null;
       activeParsedError = action.error;
       ParserOutputStore.emitChange();
