@@ -10,9 +10,7 @@ function buildTree(parserDebugger) {
       if (unresolvedProduction.name === step.terminal) {
         // resolve as terminal, no children
         unresolvedProductions.splice(k, 1);
-        unresolvedProduction.children.push({
-          name: step.text || "<<EOF>>"
-        });
+        unresolvedProduction.subtitle = step.text || "<<EOF>>";
       }
     }
   }

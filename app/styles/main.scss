@@ -65,18 +65,19 @@ body {
   }
 }
 
-.node circle {
-  fill: #fff;
-  stroke: steelblue;
-  stroke-width: 3px;
+.tree-node {
+  circle {
+    fill: #fff;
+    stroke: steelblue;
+    stroke-width: 3px;
+  }
+  text {
+    font: 12px sans-serif;
+    fill-opacity: 1;
+  }
 }
 
-.node text {
-  font: 12px sans-serif;
-  fill-opacity: 1;
-}
-
-.link {
+.tree-link {
   fill: none;
   stroke: #ccc;
   stroke-width: 2px;

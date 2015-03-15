@@ -21,7 +21,7 @@ var ParseTreeD3View = React.createClass({
     var transform = 'translate(' + (svgWidth / 2) + ',40)';
 
     return (
-      <svg width="100%" height={svgHeight}>
+      <svg width={svgWidth} height={svgHeight}>
         <g transform={transform}>
           {
             allPathsAndNodes.map(function (el) {
@@ -34,16 +34,44 @@ var ParseTreeD3View = React.createClass({
                   path.drawTo[0] + ',' + halfwayY + ' ' +
                   path.drawTo[0] + ',' + path.drawTo[1];
                 return (
-                  <path className="link" d={d}></path>
+                  <path className="tree-link" d={d}></path>
                 )
               } else { // node
                 var node = el;
                 var translate = "translate(" + node.x + "," + node.y + ")";
-                var textY = node.hasChildren ? -18 : 18;
+
+                var labels = [{
+                  value: node.name,
+                  y: -20,
+                  style: {
+                    fontSize: 14,
+                    fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif"
+                  }
+                }];
+
+                if (node.subtitle) {
+                  labels.push({
+                    value: node.subtitle,
+                    y: 20,
+                    style: {
+                      fontSize: 14,
+                      fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif"
+                    }
+                  });
+                }
+
                 return (
-                  <g className="node" transform={translate}>
+                  <g className="tree-node" transform={translate}>
                     <circle r="10"></circle>
-                    <text y={textY} dy=".35em" textAnchor="middle">{node.name}</text>
+                    {
+                      labels.map(function (label) {
+                        return (
+                          <text style={label.style} y={label.y} dy=".35em" textAnchor="middle">
+                            {label.value}
+                          </text>
+                        )
+                      })
+                    }
                   </g>
                 )
               }
