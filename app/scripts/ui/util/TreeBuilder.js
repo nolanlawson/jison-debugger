@@ -1,5 +1,7 @@
 'use strict';
 
+var safeStringify = require('../../util/util').safeStringify;
+
 function buildTree(parserDebugger) {
   var unresolvedProductions = [];
   var root;
@@ -21,6 +23,7 @@ function buildTree(parserDebugger) {
       // root node
       node = root = {
         name: step.nonterminal,
+        output: safeStringify(step.result),
         children: []
       }
     } else {
@@ -31,6 +34,7 @@ function buildTree(parserDebugger) {
           // resolve
           unresolvedProductions.splice(k, 1);
           node = unresolvedProduction;
+          node.output = safeStringify(step.text);
           break;
         }
       }

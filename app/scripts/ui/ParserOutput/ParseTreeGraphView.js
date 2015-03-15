@@ -6,7 +6,7 @@ var PureRenderMixin = require('React/addons').addons.PureRenderMixin;
 var TreeArtist = require('../util/TreeArtist');
 var TreeBuilder = require('../util/TreeBuilder');
 
-var ParseTreeD3View = React.createClass({
+var ParseTreeGraphView = React.createClass({
   mixins: [PureRenderMixin],
   render: function () {
     var parserDebugger = this.props.parserDebugger || [];
@@ -20,8 +20,11 @@ var ParseTreeD3View = React.createClass({
 
     var transform = 'translate(' + (svgWidth / 2) + ',40)';
 
+    var svgStyle = {
+    };
+
     return (
-      <svg width={svgWidth} height={svgHeight}>
+      <svg style={svgStyle} width={svgWidth} height={svgHeight}>
         <g transform={transform}>
           {
             allPathsAndNodes.map(function (el) {
@@ -62,6 +65,7 @@ var ParseTreeD3View = React.createClass({
 
                 return (
                   <g className="tree-node" transform={translate}>
+                    <title style={{fontFamily: 'monospace'}}>{node.output}</title>
                     <circle r="10"></circle>
                     {
                       labels.map(function (label) {
@@ -80,41 +84,8 @@ var ParseTreeD3View = React.createClass({
         </g>
       </svg>
     );
-
-/*
-          <path className="link" d="M188.57142857142856,100C188.57142857142856,150 125.71428571428571,150 125.71428571428571,200"></path>
-          <path className="link" d="M188.57142857142856,100C188.57142857142856,150 251.42857142857142,150 251.42857142857142,200"></path>
-          <path className="link" d="M251.42857142857142,0C251.42857142857142,50 188.57142857142856,50 188.57142857142856,100"></path>
-          <path className="link" d="M251.42857142857142,0C251.42857142857142,50 314.2857142857143,50 314.2857142857143,100"></path>
-          <g className="node" transform="translate(314.2857142857143,100)">
-            <circle r="10"></circle>
-            <text y="18" dy=".35em" textAnchor="middle">Level 2: B</text>
-          </g>
-          <g className="node" transform="translate(251.42857142857142,200)">
-            <circle r="10"></circle>
-            <text y="18" dy=".35em" textAnchor="middle">Daughter of A</text>
-          </g>
-          <g className="node" transform="translate(125.71428571428571,200)">
-            <circle r="10"></circle>
-            <text y="18" dy=".35em" textAnchor="middle">Son of A</text>
-          </g>
-          <g className="node" transform="translate(188.57142857142856,100)">
-            <circle r="10"></circle>
-            <text y="-18" dy=".35em" textAnchor="middle">Level 2: A</text>
-          </g>
-          <g className="node" transform="translate(251.42857142857142,0)">
-            <circle r="10"></circle>
-            <text y="-18" dy=".35em" textAnchor="middle">Top Level</text>
-          </g>
-        </g>
-      </svg>
-    );
-*/
-    /*return (
-      <pre>{JSON.stringify({nodes: nodes, paths: paths}, null, '  ')}</pre>
-    );*/
   }
 });
 
-module.exports = ParseTreeD3View;
+module.exports = ParseTreeGraphView;
 
