@@ -83,6 +83,24 @@ body {
   stroke-width: 2px;
 }
 
+.token-name {
+  font-weight: normal;
+  display: block;
+  font-size: 13px;
+  margin-left: 2px;
+  margin-bottom: 2px;
+}
+
+.token-text {
+  font-weight: normal;
+  display: block;
+  font-size: 13px;
+  margin-left: 2px;
+  margin-bottom: 2px;
+  background-color: #dfdfdf;
+  color: #333;
+}
+
 /* Responsive: Portrait tablets and up */
 @media screen and (min-width: 768px) {
   .container {

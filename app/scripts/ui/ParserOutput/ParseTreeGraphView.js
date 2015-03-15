@@ -5,6 +5,7 @@ var PureRenderMixin = require('React/addons').addons.PureRenderMixin;
 
 var TreeArtist = require('../util/TreeArtist');
 var TreeBuilder = require('../util/TreeBuilder');
+var Colorizer = require('./../util/Colorizer');
 
 var ParseTreeGraphView = React.createClass({
   mixins: [PureRenderMixin],
@@ -53,7 +54,10 @@ var ParseTreeGraphView = React.createClass({
                   }
                 }];
 
+                var nodeStyle = {};
                 if (node.subtitle) {
+                  // terminal
+                  nodeStyle.stroke = Colorizer.getColorFor(node.name);
                   labels.push({
                     value: node.subtitle,
                     y: 20,
@@ -65,20 +69,21 @@ var ParseTreeGraphView = React.createClass({
                 }
 
                 return (
-                  <g key={JSON.stringify(node)} className="tree-node" transform={translate}>
+                  <g key={JSON.stringify(node)}
+                      className="tree-node"
+                      transform={translate}>
                     <title style={{fontFamily: 'monospace'}}>{node.output}</title>
-                    <circle r="10"></circle>
+                    <circle style={nodeStyle} r="10"></circle>
                     {
                       labels.map(function (label, i) {
                         var labelKey = [label, i];
                         return (
-                          <text
-                            key={labelKey}
-                            style={label.style}
-                            y={label.y}
-                            dy=".35em"
-                            textAnchor="middle">
-                              {label.value}
+                          <text key={labelKey}
+                              style={label.style}
+                              y={label.y}
+                              dy=".35em"
+                              textAnchor="middle">
+                            {label.value}
                           </text>
                         )
                       })

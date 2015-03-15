@@ -9,6 +9,7 @@
     "jison": "nolanlawson/jison#debuggable",
     "keymirror": "^0.1.1",
     "lex-parser": "^0.1.4",
+    "lodash": "^3.5.0",
     "object-assign": "^2.0.0"
   },
   "devDependencies": {

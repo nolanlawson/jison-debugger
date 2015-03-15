@@ -25,24 +25,6 @@ var LexOutputView = React.createClass({
 
     var lexDebugger = this.props.lexDebugger || [];
 
-    var tokenTextStyle = {
-      fontWeight: 'normal',
-      display:'block',
-      fontSize: 13,
-      marginLeft: 2,
-      marginBottom: 2
-    };
-
-    var tokenNameStyle = {
-      fontWeight: 'normal',
-      display:'block',
-      fontSize: 13,
-      marginLeft: 2,
-      marginBottom: 2
-    };
-
-    //console.log('lexDebugger.length', lexDebugger.length);
-
     return (
       <div style={mainStyle}>
         <h5>Tokens</h5>
@@ -52,13 +34,13 @@ var LexOutputView = React.createClass({
               return (
                 <li key={createKey(token, i)} style={{display: 'inline-block'}}>
                   <span
-                    style={tokenTextStyle}
-                    className="label label-default">
+                    className="label label-default token-text">
                       {token.tokenText || 'EOF'}
                   </span>
                   <span
-                    style={tokenNameStyle}
-                    className={"label label-" + Colorizer.getColorFor(token.tokenName)}>
+                    style={{backgroundColor: Colorizer.getColorFor(token.tokenName)}}
+                    className="label token-name"
+                    >
                       {token.tokenName}
                   </span>
                 </li>
