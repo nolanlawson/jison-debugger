@@ -20,19 +20,31 @@ function drawAbstractSvg(root) {
 
   calculateDepth(root, 0);
 
-  var xIncrement = 60;
+  var xIncrement = 60; // really a minimum. may expand if nodes have verbose text
   var yIncrement = 50;
   var svgHeight = ((maxDepth + 1) * yIncrement);
   var yPadding = 40;
 
-  var maxChildren = 0;
+
+  function calculateNeededXIncrement(node) {
+    var estimatedNeededWidth = Math.max(node.name.length,
+      node.subtitle ? node.subtitle.length : 0);
+    estimatedNeededWidth *= 7; // 14px
+    if (estimatedNeededWidth > xIncrement) {
+      xIncrement = estimatedNeededWidth;
+    }
+    if (node.children) {
+      node.children.forEach(function (child, i) {
+        calculateNeededXIncrement(child);
+      });
+    }
+  }
+
+  calculateNeededXIncrement(root);
 
   function calculateSubtreeWidth(node) {
     node.width = 0;
     if (node.children) {
-      if (node.children.length > maxChildren) {
-        maxChildren = node.children.length;
-      }
       node.children.forEach(function (child, i) {
         calculateSubtreeWidth(child);
         node.width += child.width;
@@ -44,13 +56,6 @@ function drawAbstractSvg(root) {
   }
 
   calculateSubtreeWidth(root);
-
-  if (root.width < 200 || maxChildren > 3) {
-    // use a bigger xIncrement so it doesn't look so crowded.
-    // recalculate. TODO: make it not recalculate, be smarter about this
-    xIncrement = 100;
-    calculateSubtreeWidth(root);
-  }
 
   function generate(treeNode, depth, x) {
     var y = depth * yIncrement;
