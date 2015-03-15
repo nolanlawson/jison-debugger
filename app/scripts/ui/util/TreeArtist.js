@@ -20,7 +20,7 @@ function drawAbstractSvg(root) {
 
   calculateDepth(root, 0);
 
-  var xIncrement = 50;
+  var xIncrement = 60;
   var yIncrement = 50;
   var svgHeight = ((maxDepth + 1) * yIncrement);
   var yPadding = 40;

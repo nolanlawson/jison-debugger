@@ -101,6 +101,12 @@ body {
   color: #333;
 }
 
+.text-muted.muted-link {
+  cursor: pointer;
+  margin-left: 10px;
+  font-size: 12px;
+}
+
 /* Responsive: Portrait tablets and up */
 @media screen and (min-width: 768px) {
   .container {

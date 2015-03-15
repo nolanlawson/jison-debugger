@@ -11,22 +11,16 @@ var ParseTreeView = React.createClass({
   getInitialState: function () {
     return {raw: false}
   },
-  _useRaw: function () {
-    this.setState({raw: true});
-  },
-  _useTree: function () {
-    this.setState({raw: false});
+  _toggleRaw: function () {
+    this.setState({raw: !this.state.raw});
   },
   render: function () {
-
-    var linkStyle = {cursor: 'pointer', marginLeft: 10};
-
     if (this.state.raw) {
       return (
         <div>
           <div>
             <h5 style={{display: 'inline-block'}}>Parse tree</h5>
-            <a style={linkStyle} onClick={this._useTree} className="text-muted">
+            <a onClick={this._toggleRaw} className="text-muted muted-link">
               Show graph
             </a>
           </div>
@@ -39,7 +33,7 @@ var ParseTreeView = React.createClass({
       <div>
         <div>
           <h5 style={{display: 'inline-block'}}>Parse tree</h5>
-          <a style={linkStyle} onClick={this._useRaw} className="text-muted">
+          <a onClick={this._toggleRaw} className="text-muted muted-link">
             Show log
           </a>
         </div>
