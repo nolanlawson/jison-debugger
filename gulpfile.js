@@ -9,6 +9,7 @@ var path = require('path');
 
 // Load plugins
 var $ = require('gulp-load-plugins')();
+var sass = require('gulp-ruby-sass');
 var browserify = require('browserify');
 var watchify = require('watchify');
 var source = require('vinyl-source-stream'),
@@ -21,15 +22,8 @@ var source = require('vinyl-source-stream'),
 
 // Styles
 gulp.task('styles', function () {
-    return gulp.src('app/styles/main.scss')
-        .pipe($.rubySass({
-            style: 'expanded',
-            precision: 10,
-            loadPath: ['app/bower_components']
-        }))
-        .pipe($.autoprefixer('last 1 version'))
-        .pipe(gulp.dest('dist/styles'))
-        .pipe($.size());
+  return sass('app/styles/main.scss', {style: 'expanded'})
+    .pipe(gulp.dest('dist/styles/main.css'));
 });
 
 

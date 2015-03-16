@@ -31,11 +31,15 @@ var LexOutputView = React.createClass({
         <ul style={ulStyle}>
           {
             lexDebugger.map(function (token, i) {
+              var displayText = token.tokenText || 'EOF';
+              if (/^\s+$/.test(displayText)) { // whitespace
+                displayText = '\u00A0'; // nbsp, so it gets the proper height
+              }
               return (
                 <li key={createKey(token, i)} style={{display: 'inline-block'}}>
                   <span
                     className="label label-default token-text">
-                      {token.tokenText || 'EOF'}
+                      {displayText}
                   </span>
                   <span
                     style={{backgroundColor: Colorizer.getColorFor(token.tokenName)}}

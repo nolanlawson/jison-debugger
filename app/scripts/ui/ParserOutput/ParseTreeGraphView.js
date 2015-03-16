@@ -9,6 +9,9 @@ var Colorizer = require('./../util/Colorizer');
 
 var ParseTreeGraphView = React.createClass({
   mixins: [PureRenderMixin],
+  getInitialState: function () {
+    return {zoom: 1}
+  },
   render: function () {
     var parserDebugger = this.props.parserDebugger || [];
 
@@ -19,18 +22,29 @@ var ParseTreeGraphView = React.createClass({
     var svgWidth = abstractSvg.svgWidth;
     var allPathsAndNodes = abstractSvg.paths.slice().concat(abstractSvg.nodes);
 
-    var transform = 'translate(0,40)';
-
     var svgStyle = {
       width: '100%',
       maxHeight: svgHeight
     };
 
+    var zoom = this.state.zoom;
+    var yOffset = 40;
+    var xOffset = 0;
+
+    if (this.state.zoom !== 1) {
+      svgStyle.transform = svgStyle.webkitTransform = 'scale3d(' + zoom + ',' + zoom + ',1)';
+    }
+
+    var transform = 'translate(' + (xOffset * zoom ) + ',' + (yOffset * zoom) + ')';
+
     // viewBox basically makes the SVG auto-responsive. 2015 is amazing.
     var viewBox = "0 0 " + svgWidth + " " + svgHeight;
 
     return (
-      <svg version="1.1" viewBox={viewBox} style={svgStyle}>
+      <svg version="1.1"
+           preserveAspectRatio="xMinYMin meet"
+           viewBox={viewBox}
+           style={svgStyle}>
         <g transform={transform}>
           {
             allPathsAndNodes.map(function (el) {
