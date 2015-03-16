@@ -10,13 +10,11 @@
 
 %lex
 
-%options flex case-insensitive
-
 %%
 
 \s+                   /* skip whitespace */
 // yytext means just the text itself
-\w+                   return yytext
+\w+                   return yytext.toLowerCase()
 .                     /* ignore any non-words */
 <<EOF>>               return 'EOF'
 
@@ -51,7 +49,7 @@ D
   ;
 
 N
-  : I | astronomer | telescope | me -> {noun: $1}
+  : i | astronomer | telescope | me -> {noun: $1}
   ;
 
 VP
