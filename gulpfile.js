@@ -22,8 +22,11 @@ var source = require('vinyl-source-stream'),
 
 // Styles
 gulp.task('styles', function () {
-  return sass('app/styles/main.scss', {style: 'expanded'})
-    .pipe(gulp.dest('dist/styles/main.css'));
+  return sass('app/styles/main.scss', {
+    loadPath: 'app/',
+    style: 'expanded'
+  })
+    .pipe(gulp.dest('dist/styles'));
 });
 
 
@@ -83,7 +86,6 @@ gulp.task('jade', function () {
 // HTML
 gulp.task('html', function () {
     return gulp.src('app/*.html')
-        .pipe($.useref())
         .pipe(gulp.dest('dist'))
         .pipe($.size());
 });
@@ -122,18 +124,12 @@ gulp.task('clean', function (cb) {
 // Bundle
 gulp.task('bundle', ['styles', 'scripts', 'bower', 'worker'], function(){
     return gulp.src('./app/*.html')
-               .pipe($.useref.assets())
-               .pipe($.useref.restore())
-               .pipe($.useref())
                .pipe(gulp.dest('dist'));
 });
 
 // Bundle
 gulp.task('bundle_debug', ['styles', 'scripts_debug', 'bower', 'worker'], function(){
   return gulp.src('./app/*.html')
-    .pipe($.useref.assets())
-    .pipe($.useref.restore())
-    .pipe($.useref())
     .pipe(gulp.dest('dist'));
 });
 
