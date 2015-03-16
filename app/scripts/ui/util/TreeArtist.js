@@ -22,9 +22,6 @@ function drawAbstractSvg(root) {
 
   var xIncrement = 60; // really a minimum. may expand if nodes have verbose text
   var yIncrement = 50;
-  var svgHeight = ((maxDepth + 1) * yIncrement);
-  var yPadding = 40;
-
 
   function calculateNeededXIncrement(node) {
     var estimatedNeededWidth = Math.max(node.name.length,
@@ -91,11 +88,17 @@ function drawAbstractSvg(root) {
 
   generate(root, 0, xIncrement + (root.width / 2));
 
+  var svgWidth = root.width + (xIncrement * 2);
+  var svgHeight = ((maxDepth - 1) * yIncrement);
+  var yPadding = 120; // padding for text on top and bottom
+  var yOffset = 40; // offset for text on top
   var result = {
     paths: paths,
     nodes: nodes,
-    svgHeight: svgHeight + yPadding,
-    svgWidth: root.width + (xIncrement * 2)
+    svgHeight: svgHeight,
+    yPadding: yPadding,
+    svgWidth: svgWidth,
+    yOffset: yOffset
   };
 
   return result;
