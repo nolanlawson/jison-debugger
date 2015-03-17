@@ -107,6 +107,29 @@ body {
   font-size: 12px;
 }
 
+.fullscreen-stroke {
+  fill: #777;
+}
+
+button:hover.fullscreen-stroke {
+  fill: #333;
+}
+
+button.btn.btn-fullscreen:focus {
+  outline: 0;
+}
+
+.modal-backdrop {
+  position: fixed;
+  top: 0px;
+  right: 0px;
+  bottom: 0px;
+  left: 0px;
+  z-index: 1040;
+  background-color: #000;
+  opacity: 0.5;
+}
+
 /* Responsive: Portrait tablets and up */
 @media screen and (min-width: 768px) {
   .container {
