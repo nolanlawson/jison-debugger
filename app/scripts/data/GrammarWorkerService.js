@@ -7,7 +7,7 @@ var debounce = require('../util/util').debounce();
 
 var GrammarWorkerService =  {
   compileGrammar: function (grammar) {
-    debounce(700, function () {
+    debounce(300, function () {
       worker.addEventListener('error', function (e) {
         CompiledGrammarActionCreator.grammarErrored(e);
       });

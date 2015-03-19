@@ -7,7 +7,7 @@ var debounce = require('../util/util').debounce();
 
 var ParserWorkerService =  {
   parseText: function (text) {
-    debounce(700, function () {
+    debounce(300, function () {
       if (!GrammarOutputStore.getActiveCompiledGrammar()) {
         return; // grammar is invalid, can't parse
       }
