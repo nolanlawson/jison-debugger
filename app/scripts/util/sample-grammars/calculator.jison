@@ -1,5 +1,5 @@
 /* Calculator demo -
- * Parses end executes mathematical expressions.
+ * Parses and executes mathematical expressions.
  * Written by Zach Carter. Annotated by Nolan Lawson.
  */
 
