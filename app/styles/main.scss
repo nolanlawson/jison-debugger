@@ -156,3 +156,13 @@ button.btn.btn-fullscreen:focus {
     border-bottom: 0;
   }
 }
+
+.container {
+  max-width: none;
+  padding: 0 40px;
+  width: 100%;
+}
+
+textarea {
+  max-width: 100%;
+}
