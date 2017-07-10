@@ -2,8 +2,8 @@
 
 /** @jsx React.DOM */
 
-var React = window.React = require('react/addons');
-var PureRenderMixin = React.addons.PureRenderMixin;
+var React = window.React = require('react');
+var PureRenderMixin = require('react-addons-pure-render-mixin');
 var mountNode = document.getElementById('app');
 
 var Editor = require("./ui/Editor/Editor");
@@ -94,5 +94,5 @@ var App = React.createClass({
   }
 });
 
-React.render(<App />, mountNode);
+require('react-dom').render(<App />, mountNode);
 

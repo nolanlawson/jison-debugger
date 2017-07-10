@@ -1,7 +1,7 @@
 'use strict';
 
 /** @jsx React.DOM */
-var PureRenderMixin = require('React/addons').addons.PureRenderMixin;
+var PureRenderMixin = require('react-addons-pure-render-mixin');
 
 var TreeArtist = require('../util/TreeArtist');
 var TreeBuilder = require('../util/TreeBuilder');

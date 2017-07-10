@@ -2,7 +2,7 @@
 
 /** @jsx React.DOM */
 var React = require('react');
-var PureRenderMixin = require('React/addons').addons.PureRenderMixin;
+var PureRenderMixin = require('react-addons-pure-render-mixin');
 
 var ParserActionCreator = require('../../actions/ParserActionCreator');
 var UserInputActionCreator = require('../../actions/UserInputActionCreator');

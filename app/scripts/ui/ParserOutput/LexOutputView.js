@@ -2,7 +2,7 @@
 
 /** @jsx React.DOM */
 
-var PureRenderMixin = require('React/addons').addons.PureRenderMixin;
+var PureRenderMixin = require('react-addons-pure-render-mixin');
 var Colorizer = require('./../util/Colorizer');
 var safeStringify = require('../../util/util').safeStringify;
 
