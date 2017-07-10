@@ -1,6 +1,6 @@
 {
   "name": "jison-debugger",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "repository": "gti+https://github.com/ku3mich/jison-debugger.git",
   "license": "Apache-2.0",
   "author": "Nolan Lawson",
