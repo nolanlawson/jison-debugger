@@ -167,23 +167,23 @@ gulp.task('extras', function () {
 gulp.task('watch', gulp.series('html', 'bundle_debug', 'images', 'serve', function () {
 
   // Watch .json files
-  gulp.watch('app/scripts/**/*.json', ['json']);
+  gulp.watch('app/scripts/**/*.json', gulp.series('json'));
 
   // Watch .html files
-  gulp.watch('app/*.html', ['html']);
+  gulp.watch('app/*.html', gulp.series('html'));
 
 
   // Watch .scss files
-  gulp.watch('app/styles/**/*.scss', ['styles']);
+  gulp.watch('app/styles/**/*.scss', gulp.series('styles'));
 
 
 
   // Watch .jade files
-  gulp.watch('app/template/**/*.jade', ['jade', 'html']);
+  gulp.watch('app/template/**/*.jade', gulp.parallel('jade', 'html'));
 
 
   // Watch image files
-  gulp.watch('app/images/**/*', ['images']);
+  gulp.watch('app/images/**/*', gulp.series('images'));
 }));
 
 // Build
