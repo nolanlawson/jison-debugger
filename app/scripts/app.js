@@ -49,6 +49,7 @@ var App = React.createClass({
   },
   _getState: function () {
     return {
+      log: GrammarOutputStore.getActiveCompiledLog(),
       grammar: GrammarInputStore.getActiveGrammar(),
       textToParse: GrammarInputStore.getActiveTextToParse(),
       compiledError: GrammarOutputStore.getActiveCompiledError(),

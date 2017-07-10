@@ -28,7 +28,8 @@ var ParserWorkerService =  {
       // ask the web worker to parse the text for us
       worker.postMessage({
         textToParse: text,
-        compiledParser: GrammarOutputStore.getActiveCompiledParser()
+        compiledParser: GrammarOutputStore.getActiveCompiledParser(),
+        log : GrammarOutputStore.getActiveCompiledLog(),
       });
     }.bind(this));
   }

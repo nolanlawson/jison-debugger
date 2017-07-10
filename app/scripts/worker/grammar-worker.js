@@ -1,5 +1,6 @@
 /* jshint worker:true */
-/* global Jison,ebnf,parser */
+/* global Jison,bnf,parser,importScripts */
+
 importScripts('./jison.js');
 Jison.print = function () {};
 
@@ -13,9 +14,21 @@ function compileGrammar(self, grammar) {
     compiledGrammar = bnf.parse(grammar);
   }
 
+  var log = [];
+  
+  Jison.print = function (msg) {
+    log.push({
+      action : 'jison',
+      text : msg
+    });
+  };
+  
   var compiledParser = new Jison.Parser(compiledGrammar).generate();
 
-  self.postMessage({compiledGrammar: compiledGrammar, compiledParser: compiledParser});
+  self.postMessage({
+    compiledGrammar,
+    compiledParser,
+    log});
 }
 
 function parseText(self, request) {
@@ -24,8 +37,9 @@ function parseText(self, request) {
   var compiledParser = parser;
 
   Jison.lexDebugger = [];
-  Jison.parserDebugger = [];
-  var parsedResult
+  Jison.parserDebugger = request.log || [];
+  var parsedResult;
+  
   try {
     parsedResult = compiledParser.parse(textToParse);
   } catch (e) {
