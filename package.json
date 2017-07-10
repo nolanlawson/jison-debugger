@@ -33,7 +33,7 @@
     "gulp-webserver": "^0.9.0",
     "jest": "latest",
     "jison": "^0.4.17",
-    "optipng-bin": "file:node_modules/optipng-bin",
+    "optipng-bin": "^4.0.0",
     "react": "^15.6.1",
     "react-addons-pure-render-mixin": "^15.6.0",
     "react-dom": "^15.6.1",
