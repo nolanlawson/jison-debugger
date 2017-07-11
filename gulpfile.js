@@ -112,9 +112,9 @@ gulp.task('jest', function () {
 });
 
 // Clean
-gulp.task('clean', function (cb) {
-  cb(del.sync(['dist/styles', 'dist/scripts', 'dist/images']));
-});
+gulp.task('clean', gulp.series(function () {
+  return del(['dist/styles', 'dist/scripts', 'dist/images']);
+}));
 
 // Bower helper
 gulp.task('bower', function() {
