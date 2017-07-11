@@ -14,7 +14,8 @@ module.exports = {
     AppDispatcher.handleWorkerAction({
       type: ActionTypes.GRAMMAR_COMPILED,
       compiledGrammar: data.compiledGrammar,
-      compiledParser: data.compiledParser
+      compiledParser: data.compiledParser,
+      log: data.log
     });
   }
 };

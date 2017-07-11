@@ -9,3 +9,5 @@ Developing: use `gulp watch`. This was created with [a Yeoman generator](https:/
 Recompiling Jison: `npm run build-jison`. I'm using a special build of Jison for debugging.
 
 Deploying to gh-pages: use `npm run deploy`. It will build the project and push to the `gh-pages` branch.
+
+Run: `gulp serve`

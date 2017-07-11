@@ -4,7 +4,7 @@
 
 /* global blobUtil */
 
-var PureRenderMixin = require('React/addons').addons.PureRenderMixin;
+var PureRenderMixin = require('react-addons-pure-render-mixin');
 
 var GrammarSuccessView = React.createClass({
   mixins: [PureRenderMixin],

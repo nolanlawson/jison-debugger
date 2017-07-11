@@ -3,3 +3,7 @@ dist/
 .sass-cache/
 bower_components
 app/scripts/worker/jison.js
+.tern-port
+*.jse
+\#*
+
