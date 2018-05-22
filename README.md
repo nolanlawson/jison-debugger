@@ -1,4 +1,4 @@
-# jison-debugger
+# jison-debugger [![No Maintenance Intended](http://unmaintained.tech/badge.svg)](http://unmaintained.tech/)
 
 Web UI for debugging [Jison](https://github.com/zaach/jison) grammars, written in React.js.
 
